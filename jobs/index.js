@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue, remove } from 'firebase/database';
+import { getDatabase, ref, child, get, remove } from "firebase/database";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -22,20 +22,23 @@ initializeApp(firebaseConfig);
 var database = getDatabase();
 var today = new Date();
 var todayString =  today.toISOString().split('T')[0];
-const queryQuito = ref(database, 'quito' + '/' + todayString);
-onValue(queryQuito, (snapshot) => {
+const queryQuito = ref(database);
+
+get(child(queryQuito, `quito/${todayString}`)).then((snapshot) => {
     const data = snapshot.val();
-    console.log(data);
-    for (let val in data) {
-        if(data[val].endAt){
-            today = new Date();
-            console.log(today);
-            const day = new Date(`${todayString} ${data[val].endAt}:00`);
-            console.log(day);
-                if(day <= today){
-                    remove(ref(database, 'quito' + '/' + todayString + '/' + val));
-                    console.log(`Reservacion ${val} eliminada`);
+        console.log(data);
+        for (let val in data) {
+            if(data[val].endAt){
+                today = new Date();
+                console.log(today);
+                const day = new Date(`${todayString} ${data[val].endAt}:00`);
+                console.log(day);
+                    if(day <= today){
+                        remove(ref(database, 'quito' + '/' + todayString + '/' + val));
+                        console.log(`Reservacion ${val} eliminada`);
+                }
             }
         }
-    }
-});
+  }).catch((error) => {
+    console.error(error);
+  });
