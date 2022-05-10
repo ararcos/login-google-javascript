@@ -41,14 +41,11 @@ async function deleteOffice() {
 
 function deleteReservation(data, todayString, office) {
     for (let val in data) {
-        var time = data[val].endAt.split(':');
         if(data[val].endAt){
-            const today = getUTCDate();
-            const day = getUTCDate();
-            day.setUTCHours(time[0])
-            day.setUTCMinutes(time[1])
+            const today = new Date(Date.now());
+            const day = new Date(`${todayString}T${data[val].endAt}:00`);
             if(today.getTimezoneOffset() === 0){
-                day.setTime(day.getTime()+300);
+                day.setHours(day.getHours()+5);
             }
             console.log(today);
             console.log(day);
