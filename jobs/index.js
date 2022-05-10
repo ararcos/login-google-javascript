@@ -1,4 +1,4 @@
-import { initializeApp,  } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { getDatabase, ref, child, get, remove, goOffline } from "firebase/database";
 
 const firebaseConfig = {
@@ -17,15 +17,17 @@ const app = initializeApp(firebaseConfig);
 var database = getDatabase();
 
 async function deleteOffice() {
-    var today = new Date();
+    var today = new Date(Date.now());
     var todayString =  today.toISOString().split('T')[0];
     const queryQuito = ref(database);
 
     const snapshotQuito = await get(child(queryQuito, `quito/${todayString}`));
-    const snapshotGuayaquil = await get(child(queryQuito, `guayaquil/${todayString}`));
-    const snapshotLoja = await get(child(queryQuito, `loja/${todayString}`));
     const dataQuito = snapshotQuito.val();
+
+    const snapshotGuayaquil = await get(child(queryQuito, `guayaquil/${todayString}`));
     const dataGuayaquil = snapshotGuayaquil.val();
+
+    const snapshotLoja = await get(child(queryQuito, `loja/${todayString}`));
     const dataLoja = snapshotLoja.val();
     
     await deleteReservation(dataQuito, todayString, 'quito');
@@ -40,16 +42,16 @@ async function deleteOffice() {
 function deleteReservation(data, todayString, office) {
     for (let val in data) {
         if(data[val].endAt){
-            const today = new Date();
+            const today = new Date(Date.now());
             const day = new Date(`${todayString}T${data[val].endAt}:00`);
             console.log(today);
             console.log(day);
             console.log(today.getTimezoneOffset());
             console.log(day.getTimezoneOffset());
-            // if(day <= today){
-            //     remove(ref(database, office + '/' + todayString + '/' + val));
-            //     console.log(`Reservacion ${val} eliminada de ${office} a las ${data[val].endAt} siendo las ${today.getHours()}:${today.getMinutes()}`);
-            // }
+            if(day <= today){
+                remove(ref(database, office + '/' + todayString + '/' + val));
+                console.log(`Reservacion ${val} eliminada de ${office} a las ${data[val].endAt} siendo las ${today.getHours()}:${today.getMinutes()}`);
+            }
         }
     }
 }
