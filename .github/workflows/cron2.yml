@@ -1,11 +1,10 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Update Twitter banner
-
+name: Update cron
 # Controls when the workflow will run
 on:
   schedule: # “Every 30 minutes”
-    - cron: "*/2 * * * *"
+    - cron: "*/30 * * * *"
   # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
