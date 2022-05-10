@@ -25,10 +25,13 @@ var todayString =  today.toISOString().split('T')[0];
 const queryQuito = ref(database, 'quito' + '/' + todayString);
 onValue(queryQuito, (snapshot) => {
     const data = snapshot.val();
+    console.log(data);
     for (let val in data) {
         if(data[val].endAt){
             today = new Date();
+            console.log(today);
             const day = new Date(`${todayString} ${data[val].endAt}:00`);
+            console.log(day);
                 if(day <= today){
                     remove(ref(database, 'quito' + '/' + todayString + '/' + val));
                     console.log(`Reservacion ${val} eliminada`);
