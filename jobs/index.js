@@ -44,6 +44,8 @@ function deleteReservation(data, todayString, office) {
             const day = new Date(`${todayString}T${data[val].endAt}:00`);
             console.log(today);
             console.log(day);
+            console.log(today.getTimezoneOffset());
+            console.log(day.getTimezoneOffset());
             // if(day <= today){
             //     remove(ref(database, office + '/' + todayString + '/' + val));
             //     console.log(`Reservacion ${val} eliminada de ${office} a las ${data[val].endAt} siendo las ${today.getHours()}:${today.getMinutes()}`);
