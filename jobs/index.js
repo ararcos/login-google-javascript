@@ -17,8 +17,6 @@ const app = initializeApp(firebaseConfig);
 var database = getDatabase();
 
 async function deleteOffice() {
-    var utcdate = getUTCDate();
-    console.log(utcdate);
     var today = new Date(Date.now());
     var todayString =  today.toISOString().split('T')[0];
     const queryQuito = ref(database);
@@ -43,16 +41,17 @@ async function deleteOffice() {
 
 function deleteReservation(data, todayString, office) {
     for (let val in data) {
+        var time = data[val].endAt.split(':');
         if(data[val].endAt){
-            const today = new Date(Date.now());
-            const day = new Date(`${todayString}T${data[val].endAt}:00`);
+            const today = getUTCDate();
+            const day = getUTCDate();
+            day.setUTCHours(time[0])
+            day.setUTCMinutes(time[1])
             if(today.getTimezoneOffset() === 0){
                 day.setTime(day.getTime()+300);
             }
             console.log(today);
             console.log(day);
-            console.log(today.getTimezoneOffset());
-            console.log(day.getTimezoneOffset());
             if(day <= today){
                 remove(ref(database, office + '/' + todayString + '/' + val));
                 console.log(`Reservacion ${val} eliminada de ${office} a las ${data[val].endAt} siendo las ${today.getHours()}:${today.getMinutes()}`);
