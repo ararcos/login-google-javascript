@@ -1,0 +1,25 @@
+{
+  "name": "login-google-javascript",
+  "version": "1.0.0",
+  "description": "login-google-javascript",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "job": "node jobs/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ararcos/login-google-javascript.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ararcos/login-google-javascript/issues"
+  },
+  "homepage": "https://github.com/ararcos/login-google-javascript#readme",
+  "dependencies": {
+    "firebase": "^9.8.1"
+  }
+  
+}
