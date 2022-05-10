@@ -1,11 +1,6 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, child, get, remove } from "firebase/database";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp,  } from "firebase/app";
+import { getDatabase, ref, child, get, remove, goOffline } from "firebase/database";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDTIi0NZlJT-Zg29UWKC9GJcR0qKu0jxA0",
   authDomain: "test-reser.firebaseapp.com",
@@ -18,27 +13,44 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 var database = getDatabase();
-var today = new Date();
-var todayString =  today.toISOString().split('T')[0];
-const queryQuito = ref(database);
 
-get(child(queryQuito, `quito/${todayString}`)).then((snapshot) => {
-    const data = snapshot.val();
-        console.log(data);
-        for (let val in data) {
-            if(data[val].endAt){
-                today = new Date();
-                console.log(today);
-                const day = new Date(`${todayString} ${data[val].endAt}:00`);
-                console.log(day);
-                    if(day <= today){
-                        remove(ref(database, 'quito' + '/' + todayString + '/' + val));
-                        console.log(`Reservacion ${val} eliminada`);
-                }
+async function deleteOffice() {
+    var today = new Date();
+    var todayString =  today.toISOString().split('T')[0];
+    const queryQuito = ref(database);
+
+    const snapshotQuito = await get(child(queryQuito, `quito/${todayString}`));
+    const snapshotGuayaquil = await get(child(queryQuito, `guayaquil/${todayString}`));
+    const snapshotLoja = await get(child(queryQuito, `loja/${todayString}`));
+    const dataQuito = snapshotQuito.val();
+    const dataGuayaquil = snapshotGuayaquil.val();
+    const dataLoja = snapshotLoja.val();
+    
+    await deleteReservation(dataQuito, todayString, 'quito');
+
+    await deleteReservation(dataGuayaquil, todayString, 'guayaquil');
+
+    await deleteReservation(dataLoja, todayString, 'loja');
+
+    goOffline(database);
+}
+
+function deleteReservation(data, todayString, office) {
+    for (let val in data) {
+        if(data[val].endAt){
+            const today = new Date();
+            const day = new Date(`${todayString} ${data[val].endAt}:00`);
+            console.log(today);
+            console.log(day);
+                if(day <= today){
+                    remove(ref(database, office + '/' + todayString + '/' + val));
+                    console.log(`Reservacion ${val} eliminada de ${office} a las ${data[val].endAt} siendo las ${today.getHours()}:${today.getMinutes()}`);
             }
         }
-  }).catch((error) => {
-    console.error(error);
-  });
+    }
+}
+
+deleteOffice();
+
