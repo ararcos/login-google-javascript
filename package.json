@@ -20,6 +20,8 @@
   "homepage": "https://github.com/ararcos/login-google-javascript#readme",
   "dependencies": {
     "firebase": "^9.8.1"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.1"
   }
-  
 }

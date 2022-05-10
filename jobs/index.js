@@ -1,19 +1,20 @@
+
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, child, get, remove, goOffline } from "firebase/database";
+import 'dotenv/config';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDTIi0NZlJT-Zg29UWKC9GJcR0qKu0jxA0",
-  authDomain: "test-reser.firebaseapp.com",
-  databaseURL: "https://test-reser-default-rtdb.firebaseio.com",
-  projectId: "test-reser",
-  storageBucket: "test-reser.appspot.com",
-  messagingSenderId: "78756035714",
-  appId: "1:78756035714:web:75635f29e70116906b089b",
-  measurementId: "G-WD13C8GHLV"
+  apiKey: process.env.API_KEY,
+  authDomain: process.env.AUTH_DOMAIN,
+  databaseURL: process.env.DATABASE_URL,
+  projectId: process.env.PROJECT_ID,
+  storageBucket: process.env.STORAGE,
+  messagingSenderId: process.env.MESSAGING,
+  appId: process.env.APP_ID,
+  measurementId: process.env.MEASURE,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+initializeApp(firebaseConfig);
 var database = getDatabase();
 
 async function deleteOffice() {
@@ -39,7 +40,7 @@ async function deleteOffice() {
     goOffline(database);
 }
 
-function deleteReservation(data, todayString, office) {
+async function deleteReservation(data, todayString, office) {
     for (let val in data) {
         if(data[val].endAt){
             const today = new Date(Date.now());
@@ -47,10 +48,8 @@ function deleteReservation(data, todayString, office) {
             if(today.getTimezoneOffset() === 0){
                 day.setHours(day.getHours()+5);
             }
-            console.log(today);
-            console.log(day);
             if(day <= today){
-                remove(ref(database, office + '/' + todayString + '/' + val));
+                await remove(ref(database, office + '/' + todayString + '/' + val));
                 console.log(`Reservacion ${val} eliminada de ${office} a las ${data[val].endAt} siendo las ${today.getHours()}:${today.getMinutes()}`);
             }
         }
