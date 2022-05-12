@@ -1,34 +1,28 @@
-
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, child, get, remove, goOffline } from "firebase/database";
+import admin from 'firebase-admin';
 import 'dotenv/config';
 
-const firebaseConfig = {
-  apiKey: process.env.API_KEY,
-  authDomain: process.env.AUTH_DOMAIN,
-  databaseURL: process.env.DATABASE_URL,
-  projectId: process.env.PROJECT_ID,
-  storageBucket: process.env.STORAGE,
-  messagingSenderId: process.env.MESSAGING,
-  appId: process.env.APP_ID,
-  measurementId: process.env.MEASURE,
-};
+admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY,
+    }),
+    databaseURL: process.env.NEXT_PUBLIC_DATABASE_URL,
+  });
 
-initializeApp(firebaseConfig);
-var database = getDatabase();
+const dbRef = admin.database();
 
 async function deleteOffice() {
     var today = new Date(Date.now());
     var todayString =  today.toISOString().split('T')[0];
-    const queryQuito = ref(database);
 
-    const snapshotQuito = await get(child(queryQuito, `quito/${todayString}`));
+    const snapshotQuito = await dbRef.ref(`quito/${todayString}`).get();
     const dataQuito = snapshotQuito.val();
 
-    const snapshotGuayaquil = await get(child(queryQuito, `guayaquil/${todayString}`));
+    const snapshotGuayaquil = await dbRef.ref(`guayaquil/${todayString}`).get();
     const dataGuayaquil = snapshotGuayaquil.val();
 
-    const snapshotLoja = await get(child(queryQuito, `loja/${todayString}`));
+    const snapshotLoja = await dbRef.ref(`loja/${todayString}`).get();
     const dataLoja = snapshotLoja.val();
     
     await deleteReservation(dataQuito, todayString, 'quito');
@@ -37,7 +31,9 @@ async function deleteOffice() {
 
     await deleteReservation(dataLoja, todayString, 'loja');
 
-    goOffline(database);
+    admin.app().delete().then(() => {
+        console.log('App deleted successfully');
+    });
 }
 
 async function deleteReservation(data, todayString, office) {
@@ -49,17 +45,12 @@ async function deleteReservation(data, todayString, office) {
                 day.setHours(day.getHours()+5);
             }
             if(day <= today){
-                await remove(ref(database, office + '/' + todayString + '/' + val));
+                const del_ref = dbRef.ref(office + '/' + todayString + '/' + val);
+                await del_ref.remove()
                 console.log(`Reservacion ${val} eliminada de ${office} a las ${data[val].endAt} siendo las ${today.getHours()}:${today.getMinutes()}`);
             }
         }
     }
 }
-
-function getUTCDate() {
-    var now = new Date();
-    return new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
-}
-
 deleteOffice();
 
