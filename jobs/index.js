@@ -22,7 +22,7 @@ function getTodayString() {
 }
 async function deleteOffice() {
     console.log(todayDateString);
-    console.log(new Date().toLocaleTimeString("es-ec"));
+    console.log(new Date().toLocaleTimeString("es-ec", { timeZone: "America/Bogota" }));
 
     const snapshotQuito = await dbRef.ref(`quito/${todayDateString}`).get();
     const dataQuito = snapshotQuito.val();
@@ -57,7 +57,7 @@ async function deleteReservation(data, todayString, office) {
             if(day <= today){
                 const del_ref = dbRef.ref(office + '/' + todayDateString + '/' + val);
                 await del_ref.remove()
-                console.log(`Reservacion ${val} eliminada de ${office} a las ${data[val].endAt} siendo las ${today.toLocaleTimeString("es-ec")}`);
+                console.log(`Reservacion ${val} eliminada de ${office} a las ${data[val].endAt} siendo las ${today.toLocaleTimeString("es-ec", { timeZone: "America/Bogota" })}`);
             }
         }
     }
