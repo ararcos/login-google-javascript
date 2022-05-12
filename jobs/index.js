@@ -1,6 +1,10 @@
 import admin from 'firebase-admin';
 import 'dotenv/config';
 
+console.log(process.env.FIREBASE_PRIVATE_KEY);
+console.log(process.env.NEXT_PUBLIC_PROJECT_ID);
+console.log(process.env.FIREBASE_CLIENT_EMAIL);
+console.log(process.env.NEXT_PUBLIC_DATABASE_URL);
 admin.initializeApp({
     credential: admin.credential.cert({
       projectId: process.env.NEXT_PUBLIC_PROJECT_ID,

@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/ararcos/login-google-javascript#readme",
   "dependencies": {
-    "firebase": "^9.8.1",
     "firebase-admin": "^10.2.0"
   },
   "devDependencies": {
