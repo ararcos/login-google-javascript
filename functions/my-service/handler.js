@@ -1,17 +1,6 @@
-import admin from 'firebase-admin';
-import 'dotenv/config';
-
-admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY,
-    }),
-    databaseURL: process.env.NEXT_PUBLIC_DATABASE_URL,
-  });
-
-const dbRef = admin.database();
-let todayDateString = getTodayString();
+'use strict';
+const admin = require('firebase-admin');
+require('dotenv/config');
 
 function getTodayString() {
     let formatter = new Intl.DateTimeFormat('es-ec', { timeZone: "America/Bogota" });   
@@ -22,6 +11,17 @@ function getTodayString() {
 }
 
 async function deleteOffice() {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY,
+      }),
+      databaseURL: process.env.NEXT_PUBLIC_DATABASE_URL,
+    });
+
+    const dbRef = admin.database();
+    let todayDateString = getTodayString();
     const snapshotQuito = await dbRef.ref(`quito/${todayDateString}`).get();
     const dataQuito = snapshotQuito.val();
 
@@ -30,22 +30,20 @@ async function deleteOffice() {
 
     const snapshotLoja = await dbRef.ref(`loja/${todayDateString}`).get();
     const dataLoja = snapshotLoja.val();
-    console.log(todayDateString)
     
-    await deleteReservation(dataQuito, todayDateString, 'quito');
+    await deleteReservation(dataQuito, 'quito');
 
-    await deleteReservation(dataGuayaquil, todayDateString, 'guayaquil');
+    await deleteReservation(dataGuayaquil, 'guayaquil');
 
-    await deleteReservation(dataLoja, todayDateString, 'loja');
+    await deleteReservation(dataLoja, 'loja');
 
     admin.app().delete().then(() => {
         console.log('App deleted successfully');
     });
 }
 
-async function deleteReservation(data, todayString, office) {
+async function deleteReservation(data, office) {
     for (let val in data) {
-        console.log(data[val])
         if(data[val].endAt){
             const today = new Date(Date.now());
             const day = new Date(`${todayDateString}T${data[val].endAt}:00`);
@@ -61,5 +59,21 @@ async function deleteReservation(data, todayString, office) {
     }
 }
 
-deleteOffice();
 
+
+module.exports.delete = async (event)  => {
+  
+  await deleteOffice();
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(
+      {
+        message: 'Delete successfully!',
+        input: event,
+      },
+      null,
+      2
+    ),
+  };
+};
