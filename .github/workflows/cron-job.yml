@@ -10,4 +10,4 @@ jobs:
         run: |
           curl --request GET \
           --url '${{ secrets.APP_ENDPOINT }}' \
-          --header 'Authorization: Bearer ${{ secrets.SLACK_TOKEN }}'
+          --header 'Authorization: ${{ secrets.SLACK_TOKEN }}'
