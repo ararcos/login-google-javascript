@@ -1,0 +1,13 @@
+name: Schedule 
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name:  cron job slack notification
+        run: |
+          curl --request GET \
+          --url '${{ secrets.APP_ENDPOINT }}' \
+          --header 'Authorization: Bearer ${{ secrets.SLACK_TOKEN }}'
