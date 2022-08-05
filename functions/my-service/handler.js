@@ -1,6 +1,5 @@
 'use strict';
 const admin = require('firebase-admin');
-require('dotenv/config');
 
 function getTodayString() {
     let formatter = new Intl.DateTimeFormat('es-ec', { timeZone: "America/Bogota" });   

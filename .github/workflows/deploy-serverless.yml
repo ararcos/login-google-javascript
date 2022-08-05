@@ -40,9 +40,13 @@ jobs:
           aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: serverless deploy
-        uses: serverless/github-action@master
-        with:
-          args: deploy
+      - name: Download `.serverless` state from S3
+        run: aws s3 sync s3://delete-short-reservation/.serverless .serverless --delete 
+
+      - name: Serverless Deploy
+        uses: serverless/github-action@v2
+      
+      - name: Upload `.serverless` state to S3
+        run: aws s3 sync .serverless s3://delete-short-reservation/.serverless --delete 
 
       
