@@ -22,3 +22,11 @@ __pycache__/
 .vscode
 .vs
 firebase_credentials.json
+.venv/
+.venv
+
+#terraform
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.*

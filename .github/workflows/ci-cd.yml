@@ -19,6 +19,7 @@ jobs:
         FIREBASE_CLIENT_EMAIL: ${{secrets.FIREBASE_CLIENT_EMAIL}}
         FIREBASE_PRIVATE_KEY: ${{secrets.FIREBASE_PRIVATE_KEY}}
         AWS_REGION: us-east-1
+        API_REGISTRY_NAME: office_reservation_base
 
     steps:
     - uses: actions/checkout@v3
@@ -66,58 +67,68 @@ jobs:
         aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{env.AWS_REGION}}
 
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
       with:
         terraform_version: 1.1.9
 
     - name: Terraform Init
-      if: steps.changes.outputs.infrastructure == 'true'
+      # if: steps.changes.outputs.infrastructure == 'true'
       id: init
       run: terraform init
       working-directory: ./${{ env.WORKING_DIR }}
 
     - name: Terraform Validate
-      if: steps.changes.outputs.infrastructure == 'true'
+      # if: steps.changes.outputs.infrastructure == 'true'
       id: validate
       run: terraform validate -no-color
       working-directory: ./${{ env.WORKING_DIR }}
 
     - name: Terraform Plan
       id: plan
-      if: github.event_name == 'pull_request' && steps.changes.outputs.infrastructure == 'true'
+      # if: github.event_name == 'pull_request' && steps.changes.outputs.infrastructure == 'true'
       run: terraform plan -no-color -input=false
       working-directory: ./${{ env.WORKING_DIR }}
       continue-on-error: true
 
-    - name: Update Pull Request
-      uses: actions/github-script@v6
-      env:
-        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-      with:
-        script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: '👋 Thanks for reporting!'
-          })
+    # - name: Update Pull Request
+    #   uses: actions/github-script@v6
+    #   env:
+    #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+    #   with:
+    #     script: |
+    #       github.rest.issues.createComment({
+    #         issue_number: context.issue.number,
+    #         owner: context.repo.owner,
+    #         repo: context.repo.repo,
+    #         body: '👋 Thanks for reporting!'
+    #       })
 
     - name: Terraform Plan Status
-      if: steps.plan.outcome == 'failure' && steps.changes.outputs.infrastructure == 'true'
+      if: steps.plan.outcome == 'failure'
       run: exit 1
 
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.infrastructure == 'true'
+      # if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.infrastructure == 'true'
       run: terraform apply -auto-approve -input=false
       working-directory: ./${{ env.WORKING_DIR }}
 
     - name: Deploy Docker BASE
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.desk_reservation == 'true'
+      # if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.desk_reservation == 'true'
+      env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        source .venv/bin/activate && make push_base
+        sudo chmod +x ./docker_build_and_push.sh
+        make push_base ECR_URI=$REGISTRY/${API_REGISTRY_NAME}
 
     - name: Deploy Docker Lambdas
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.desk_reservation == 'true'
+      # if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.desk_reservation == 'true'
+      env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        source .venv/bin/activate && make build_and_deploy_lambdas
+        sudo chmod +x ./docker_build_and_push.sh
+        make build_and_deploy_lambdas ECR_URI=$REGISTRY/${API_REGISTRY_NAME}

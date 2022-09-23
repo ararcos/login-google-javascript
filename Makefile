@@ -1,7 +1,7 @@
 POETRY=poetry
 PYLINT=$(POETRY) run pylint
 PACKAGE=desk_reservation
-BACKEND_ECR_URI=$$(cd ./infrastructure; terraform output base_ecr_ui | tr -d '"')
+ECR_URI=$$(cd infrastructure/; terraform output base_ecr_ui | tr -d '"')
 BASE_ECR_TAG=latest
 LOGIN=1
 AWS_REGION="us-east-1"
@@ -32,24 +32,37 @@ hooks:
 login_ecr:
 	if [ "$(LOGIN)" = "1" ]; then \
 		echo "LOGGING INTO THE ECR" ; \
-		aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $(BACKEND_ECR_URI) ; \
+		aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin $(ECR_URI) ; \
 	else \
 		echo "LOGIN SKIPPED" ; \
 	fi
-
-build_base: Dockerfile.base login_ecr
-		docker build -t $(BACKEND_ECR_URI):$(BASE_ECR_TAG) -f $< .
+build_base: OSX=$(if $(filter $(shell uname -s),Darwin),1,0)
+build_base: TIMESTAMP=$$(date $(if $(filter $(OSX),0),--utc,) +%Y-%m%d-%H%M-%S)
+build_base: GIT_HASH=$$(git rev-parse --short HEAD)
+build_base: PUSH=1
+build_base: LATEST=0
+build_base: Dockerfile.base
+		PUSH=$(PUSH) ECR_URI=$(ECR_URI) OSX=$(OSX) \
+		TIMESTAMP=$(TIMESTAMP) GIT_HASH=$(GIT_HASH) LATEST=$(LATEST) \
+		DOCKER_FILE=$< ./docker_build_and_push.sh ; \
+		# docker build -t $(ECR_URI):$(BASE_ECR_TAG) -f $< .
 	
 push_base: build_base
-		docker push $(BACKEND_ECR_URI):$(BASE_ECR_TAG)
 
-build_and_deploy_lambdas: docker_template.json login_ecr
+build_and_deploy_lambdas: OSX=$(if $(filter $(shell uname -s),Darwin),1,0)
+build_and_deploy_lambdas: TIMESTAMP=$$(date $(if $(filter $(OSX),0),--utc,) +%Y-%m%d-%H%M-%S)
+build_and_deploy_lambdas: GIT_HASH=$$(git rev-parse --short HEAD)
+build_and_deploy_lambdas: PUSH=1
+build_and_deploy_lambdas: LATEST=0
+build_and_deploy_lambdas: docker_template.json
 
 		for index in $$(jq '.[].INDEX' $<) ; do \
 				echo $$index ; \
+				DOCKER_BASE=$(ECR_URI) \
 				LAMBDA_FILE="$$(jq -r '.['$$index'].LAMBDA_FILE' $< )"  \
 				LAMBDA_HANDLER="$$(jq -r '.['$$index'].LAMBDA_HANDLER' $< )"  \
 				envsubst < Dockerfile.tmpl | tee Dockerfile.tmp; \
-				docker build -t "$$(jq -r '.['$$index'].ECR_URI' $<)":latest -f Dockerfile.tmp . ; \
-				docker push "$$(jq -r '.['$$index'].ECR_URI' $<)":latest ; \
+				PUSH=$(PUSH) ECR_URI="$$(jq -r '.['$$index'].ECR_URI' $<)" OSX=$(OSX) \
+				TIMESTAMP=$(TIMESTAMP) GIT_HASH=$(GIT_HASH) LATEST=$(LATEST) \
+				DOCKER_FILE=Dockerfile.tmp ./docker_build_and_push.sh ; \
 			done
