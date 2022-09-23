@@ -1,0 +1,57 @@
+resource "aws_api_gateway_rest_api" "rest-api" {
+  name = var.api_gw_name
+}
+
+resource "aws_api_gateway_resource" "api-gw" {
+  rest_api_id = aws_api_gateway_rest_api.rest-api.id
+  parent_id   = aws_api_gateway_rest_api.rest-api.root_resource_id
+  path_part   = var.path_part 
+}
+
+resource "aws_api_gateway_method" "api-gw-method" {
+  rest_api_id   = aws_api_gateway_rest_api.rest-api.id
+  resource_id   = aws_api_gateway_resource.api-gw.id
+  http_method   = var.method
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "api-gw-integration" {
+  rest_api_id             = aws_api_gateway_rest_api.rest-api.id
+  resource_id             = aws_api_gateway_resource.api-gw.id
+  http_method             = aws_api_gateway_method.api-gw-method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS"
+  uri                     = var.lambda.invoke_arn
+}
+
+resource "aws_api_gateway_method_response" "response_200" {
+  rest_api_id = aws_api_gateway_rest_api.rest-api.id
+  resource_id = aws_api_gateway_resource.api-gw.id
+  http_method = aws_api_gateway_method.api-gw-method.http_method
+  status_code = "200"
+}
+
+# resource "aws_api_gateway_integration_response" "IntegrationResponse" {
+#   rest_api_id = aws_api_gateway_rest_api.rest-api.id
+#   resource_id = aws_api_gateway_resource.api-gw.id
+#   http_method = aws_api_gateway_method.api-gw-method.http_method
+#   status_code = aws_api_gateway_method_response.response_200.status_code
+
+# }
+
+
+resource "aws_api_gateway_deployment" "api-gw-deployment" {
+  depends_on = [
+    aws_api_gateway_integration.api-gw-integration
+  ]
+  rest_api_id = aws_api_gateway_rest_api.rest-api.id
+  stage_name  = var.stage_name
+}
+
+
+
+# resource "aws_api_gateway_base_path_mapping" "api_gw_domain_mapping" {
+#   api_id      = aws_api_gateway_rest_api.rest-api.id
+#   domain_name = var.domain_name
+# }
+

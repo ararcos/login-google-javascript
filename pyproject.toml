@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "ioet_desk_reservation"
+version = "1.0.0"
+description = "Backend to ioet desk reservation"
+authors = []
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+firebase-admin = "^5.2.0"
+python-dotenv = "^0.20.0"
+pydantic = "^1.9.2"
+python-decouple = "^3.6"
+
+[tool.poetry.dev-dependencies]
+pylint = "^2.14.1"
+pytest = "^7.1.2"
+Faker = "^13.12.1"
+pytest-mock = "^3.8.1"
+black = "^22.6.0"
+[build-system]
+requires = ["poetry>=1.0.0"]
+build-backend = "poetry.masonry.api"

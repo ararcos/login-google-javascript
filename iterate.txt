@@ -1,0 +1,9 @@
+LAMBDA_FILE="office" LAMBDA_HANDLER="desk" envsubst < Dockerfile.tmpl > iterate.txt
+
+FROM base
+
+# Copy function code to container
+COPY office ./
+
+# setting the CMD
+CMD ["desk"]

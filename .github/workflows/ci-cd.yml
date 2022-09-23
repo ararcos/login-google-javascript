@@ -1,0 +1,123 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-ci-cd-office-desk:
+    runs-on: ubuntu-latest
+
+    env:
+        WORKING_DIR: infrastructure 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TF_ACTION_WORKING_DIR: 'infrastructure'
+        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        NEXT_PUBLIC_PROJECT_ID: ${{secrets.NEXT_PUBLIC_PROJECT_ID}}
+        NEXT_PUBLIC_DATABASE_URL: ${{secrets.NEXT_PUBLIC_DATABASE_URL}}
+        FIREBASE_CLIENT_EMAIL: ${{secrets.FIREBASE_CLIENT_EMAIL}}
+        FIREBASE_PRIVATE_KEY: ${{secrets.FIREBASE_PRIVATE_KEY}}
+        AWS_REGION: us-east-1
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.10.0
+
+    - name: Detect Changes on files
+      id: changes
+      uses: dorny/paths-filter@v2
+      with:
+        filters: |
+          desk_reservation:
+            - 'desk_reservation/**'
+          infrastructure:
+            - 'infrastructure/**'
+
+    - name: Install Poetry
+      if: steps.changes.outputs.desk_reservation == 'true'
+      uses: snok/install-poetry@v1
+      with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+    
+    - name: Install dependencies
+      if: steps.changes.outputs.desk_reservation == 'true'
+      run: |
+        make install
+
+    - name: Run linters
+      if: steps.changes.outputs.desk_reservation == 'true'
+      run: |
+        source .venv/bin/activate && make lint
+
+    - name: Run tests
+      if: steps.changes.outputs.desk_reservation == 'true'
+      run: |
+        source .venv/bin/activate && make test
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{env.AWS_REGION}}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.1.9
+
+    - name: Terraform Init
+      if: steps.changes.outputs.infrastructure == 'true'
+      id: init
+      run: terraform init
+      working-directory: ./${{ env.WORKING_DIR }}
+
+    - name: Terraform Validate
+      if: steps.changes.outputs.infrastructure == 'true'
+      id: validate
+      run: terraform validate -no-color
+      working-directory: ./${{ env.WORKING_DIR }}
+
+    - name: Terraform Plan
+      id: plan
+      if: github.event_name == 'pull_request' && steps.changes.outputs.infrastructure == 'true'
+      run: terraform plan -no-color -input=false
+      working-directory: ./${{ env.WORKING_DIR }}
+      continue-on-error: true
+
+    - name: Update Pull Request
+      uses: actions/github-script@v6
+      env:
+        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '👋 Thanks for reporting!'
+          })
+
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure' && steps.changes.outputs.infrastructure == 'true'
+      run: exit 1
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.infrastructure == 'true'
+      run: terraform apply -auto-approve -input=false
+      working-directory: ./${{ env.WORKING_DIR }}
+
+    - name: Deploy Docker BASE
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.desk_reservation == 'true'
+      run: |
+        source .venv/bin/activate && make push_base
+
+    - name: Deploy Docker Lambdas
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.desk_reservation == 'true'
+      run: |
+        source .venv/bin/activate && make build_and_deploy_lambdas
