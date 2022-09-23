@@ -1,0 +1,24 @@
+variable "api_gw_name" {
+  type        = string
+  description = "API Gateway Name"
+}
+
+variable "path_part" {
+  type = string
+}
+
+variable "lambda" {
+  description = "Lambda Function resource"
+}
+
+# variable "domain_name" {
+#   description = "Domain Name resource"
+# }
+
+variable "stage_name" {
+  type = string
+}
+
+variable "method" {
+  type = string
+}

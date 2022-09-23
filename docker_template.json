@@ -1,0 +1,21 @@
+
+[
+    {
+    "INDEX":0,
+    "LAMBDA_FILE":"desk_reservation/bookings/infrastructure/controllers/create_booking.py",
+    "LAMBDA_HANDLER":"create_booking.create_book",
+    "ECR_URI":"388813176377.dkr.ecr.us-east-1.amazonaws.com/create_booking"
+    },
+    {
+        "INDEX":1,
+        "LAMBDA_FILE":"desk_reservation/bookings/infrastructure/controllers/delete_booking.py",
+        "LAMBDA_HANDLER":"delete_booking.delete_booking_controller",
+        "ECR_URI":"388813176377.dkr.ecr.us-east-1.amazonaws.com/delete_booking"
+    },
+    {
+        "INDEX":2,
+        "LAMBDA_FILE":"desk_reservation/bookings/infrastructure/controllers/find_booking.py",
+        "LAMBDA_HANDLER":"find_booking.find_booking_controller",
+        "ECR_URI":"388813176377.dkr.ecr.us-east-1.amazonaws.com/find_booking"
+    }
+]
