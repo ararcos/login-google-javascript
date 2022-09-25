@@ -1,0 +1,1 @@
+from .firebase_desk_repository import FirebaseDeskRepository
