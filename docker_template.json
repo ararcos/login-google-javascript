@@ -16,5 +16,11 @@
     "LAMBDA_FILE": "desk_reservation/bookings/infrastructure/controllers/find_booking.py",
     "LAMBDA_HANDLER": "find_booking.find_booking_controller",
     "ECR_NAME": "find_booking"
+  },
+  {
+    "INDEX": 3,
+    "LAMBDA_FILE": "desk_reservation/bookings/infrastructure/controllers/update_booking.py",
+    "LAMBDA_HANDLER": "update_booking.update_booking_controller",
+    "ECR_NAME": "update_booking"
   }
 ]

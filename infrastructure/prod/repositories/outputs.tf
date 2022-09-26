@@ -14,9 +14,9 @@ output "find_book_ecr_ui" {
   value = module.find_book_ECR.ecr_uri_lambda
 }
 
-# output "update_book_ecr_ui" {
-#   value = module.update_book_ECR.ecr_uri_lambda
-# }
+output "update_book_ecr_ui" {
+  value = module.update_book_ECR.ecr_uri_lambda
+}
 output "delete_book_ecr_ui" {
   value = module.delete_book_ECR.ecr_uri_lambda
 }
