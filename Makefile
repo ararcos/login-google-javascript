@@ -28,7 +28,7 @@ hooks:
 		cd .git/hooks && ln ../../.github/hooks/post_checkout.py ./post-checkout
 		cd .git/hooks && ln ../../.github/hooks/pre_commit.py ./pre-commit
 	
-base.tar: desk_reservation
+base.tar: desk_reservation .env
 		tar -cvf $@ $^
 
 login_ecr:

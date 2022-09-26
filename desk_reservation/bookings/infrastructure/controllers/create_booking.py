@@ -15,6 +15,7 @@ def create_book(event, context=None, callback=None):
         booking = SeatBooking(**event["event"])
         booking_creator = BookingCreator(booking_service)
         result = booking_creator.execute(booking)
+
         return ControllerResponse(
             status_code=HTTPStatus.CREATED,
             body=json.dumps(result.__dict__, default=str)
