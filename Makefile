@@ -1,7 +1,7 @@
 POETRY=poetry
 PYLINT=$(POETRY) run pylint
 PACKAGE=desk_reservation
-ECR_URI=$$(cd infrastructure/; terraform output base_ecr_ui | tr -d '"')
+ECR_URI=$$(cd infrastructure/prod; terraform output base_ecr_ui | tr -d '"')
 BASE_ECR_TAG=latest
 LOGIN=1
 AWS_REGION="us-east-1"
@@ -28,6 +28,8 @@ hooks:
 		cd .git/hooks && ln ../../.github/hooks/post_checkout.py ./post-checkout
 		cd .git/hooks && ln ../../.github/hooks/pre_commit.py ./pre-commit
 	
+base.tar: desk_reservation
+		tar -cvf $@ $^
 
 login_ecr:
 	if [ "$(LOGIN)" = "1" ]; then \
@@ -37,7 +39,7 @@ login_ecr:
 		echo "LOGIN SKIPPED" ; \
 	fi
 
-build_base: Dockerfile.base
+build_base: Dockerfile.base base.tar
 		docker build -t $(ECR_URI):$(BASE_ECR_TAG) -f $< .
 	
 push_base: build_base
