@@ -1,4 +1,4 @@
-FROM 388813176377.dkr.ecr.us-east-1.amazonaws.com/office_desk_reservations_base:base_project
+FROM 808666875322.dkr.ecr.us-east-1.amazonaws.com/office_reservation_base:2022-0924-0104-20-c0a84f3	
 
 # Copy function code to container
 COPY desk_reservation/bookings/infrastructure/controllers/find_booking.py ./
