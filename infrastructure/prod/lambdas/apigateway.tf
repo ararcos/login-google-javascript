@@ -28,15 +28,15 @@ module "find_booking_api" {
   #domain_name   = "www.ioet-desk-reservation.com/createbooking"
 }
 
-# module "update_booking_api" {
-#   source        = "../../common/api-gateway"
-#   api_gw_name   = "update_booking"
-#   method        = "PATCH"
-#   path_part     = "booking"
-#   lambda        = module.update_booking_lambda.function
-#   stage_name    = "prod"
-#   #domain_name   = "www.ioet-desk-reservation.com/createbooking"
-# }
+module "update_booking_api" {
+  source        = "../../common/api-gateway"
+  api_gw_name   = "update_booking"
+  method        = "PATCH"
+  path_part     = "booking"
+  lambda        = module.update_booking_lambda.function
+  stage_name    = "prod"
+  #domain_name   = "www.ioet-desk-reservation.com/createbooking"
+}
 
 # module "delete_booking_api" {
 #   source        = "../../common/api-gateway"

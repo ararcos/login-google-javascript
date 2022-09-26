@@ -18,10 +18,10 @@ module "find_book_ECR" {
   ecr_name = "find_booking"
 }
 
-# module "update_book_ECR" {
-#   source   = "../../common/ecr_lambda"
-#   ecr_name = "update_booking"
-# }
+module "update_book_ECR" {
+  source   = "../../common/ecr_lambda"
+  ecr_name = "update_booking"
+}
 
 module "delete_book_ECR" {
   source   = "../../common/ecr_lambda"
