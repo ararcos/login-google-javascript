@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-        WORKING_DIR: infrastructure 
+        WORKING_DIR: infrastructure/prod
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TF_ACTION_WORKING_DIR: 'infrastructure'
         AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -27,6 +27,14 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.10.0
+
+    - name: Detect Changes on files
+      id: changes
+      uses: dorny/paths-filter@v2
+      with:
+        filters: |
+          infrastructure:
+            - 'infrastructure/**'
 
     - name: Install Poetry
       uses: snok/install-poetry@v1
@@ -56,6 +64,32 @@ jobs:
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Terraform Init
+      id: init
+      run: terraform init
+      working-directory: ./${{ env.WORKING_DIR }}
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+      working-directory: ./${{ env.WORKING_DIR }}
+
+    - name: Terraform Plan
+      id: plan
+      if: steps.changes.outputs.infrastructure == 'true'
+      run: terraform plan -no-color -input=false -target=module.repositories
+      working-directory: ./${{ env.WORKING_DIR }}
+      continue-on-error: true
+
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.infrastructure == 'true'
+      run: terraform apply -auto-approve -input=false -target=module.repositories
+      working-directory: ./${{ env.WORKING_DIR }}
       
     - name: Deploy Docker BASE
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -73,44 +107,16 @@ jobs:
       run: |
         make build_and_deploy_lambdas ECR_URI=$REGISTRY/${API_REGISTRY_NAME} BASE_ECR_TAG=$BASE_ECR_TAG ECR_REGISTRY=$REGISTRY
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 1.1.9
-
-    - name: Terraform Init
-      id: init
-      run: terraform init
-      working-directory: ./${{ env.WORKING_DIR }}
-
-    - name: Terraform Validate
-      id: validate
-      run: terraform validate -no-color
-      working-directory: ./${{ env.WORKING_DIR }}
-
     - name: Terraform Plan
-      id: plan
+      id: plan2
       env:
         TF_VAR_IMAGE_TAG: ${{ github.sha }}
       run: terraform plan -no-color -input=false
       working-directory: ./${{ env.WORKING_DIR }}
       continue-on-error: true
 
-    # - name: Update Pull Request
-    #   uses: actions/github-script@v6
-    #   env:
-    #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-    #   with:
-    #     script: |
-    #       github.rest.issues.createComment({
-    #         issue_number: context.issue.number,
-    #         owner: context.repo.owner,
-    #         repo: context.repo.repo,
-    #         body: '👋 Thanks for reporting!'
-    #       })
-
     - name: Terraform Plan Status
-      if: steps.plan.outcome == 'failure'
+      if: steps.plan2.outcome == 'failure'
       run: exit 1
 
     - name: Terraform Apply
