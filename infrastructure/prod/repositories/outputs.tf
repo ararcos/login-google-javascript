@@ -6,9 +6,9 @@ output "create_book_ecr_ui" {
   value = module.create_book_ECR.ecr_uri_lambda
 }
 
-# output "get_book_ecr_ui" {
-#   value = module.get_book_ECR.ecr_uri_lambda
-# }
+output "get_book_ecr_ui" {
+  value = module.get_book_ECR.ecr_uri_lambda
+}
 
 output "find_book_ecr_ui" {
   value = module.find_book_ECR.ecr_uri_lambda

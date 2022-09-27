@@ -8,10 +8,10 @@ module "create_book_ECR" {
   ecr_name = "create_booking"
 }
 
-# module "get_book_ECR" {
-#   source   = "../../common/ecr_lambda"
-#   ecr_name = "get_booking"
-# }
+module "get_book_ECR" {
+  source   = "../../common/ecr_lambda"
+  ecr_name = "get_booking"
+}
 
 module "find_book_ECR" {
   source   = "../../common/ecr_lambda"
