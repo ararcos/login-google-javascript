@@ -57,3 +57,15 @@ build_and_deploy_lambdas: docker_template.json
 				docker build -t $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)":$(BASE_ECR_TAG) -f Dockerfile.tmp . ; \
 				docker push $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)":$(BASE_ECR_TAG) ; \
 			done
+
+build_lambdas: docker_template.json
+
+		for index in $$(jq '.[].INDEX' $<) ; do \
+				echo $$index ; \
+				DOCKER_BASE="Dockerfile.base" \
+				BASE_TAG=$(BASE_ECR_TAG) \
+				LAMBDA_FILE="$$(jq -r '.['$$index'].LAMBDA_FILE' $< )"  \
+				LAMBDA_HANDLER="$$(jq -r '.['$$index'].LAMBDA_HANDLER' $< )"  \
+				envsubst < Dockerfile.tmpl | tee Dockerfile.tmp; \
+				docker build -t $$(jq -r '.['$$index'].ECR_NAME' $<)":$(BASE_ECR_TAG) -f Dockerfile.tmp . ; \
+			done

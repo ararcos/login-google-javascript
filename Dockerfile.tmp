@@ -1,7 +1,7 @@
-FROM 808666875322.dkr.ecr.us-east-1.amazonaws.com/office_reservation_base:2022-0924-0104-20-c0a84f3	
+FROM 388813176377.dkr.ecr.us-east-1.amazonaws.com/office_reservation_base:latest
 
 # Copy function code to container
-COPY desk_reservation/bookings/infrastructure/controllers/find_booking.py ./
+COPY desk_reservation/bookings/infrastructure/controllers/update_booking.py ./
 
 # setting the CMD
-CMD ["find_booking.find_booking_controller"]
+CMD ["update_booking.update_booking_controller"]

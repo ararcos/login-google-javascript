@@ -30,7 +30,7 @@ module "find_booking_lambda" {
 
 module "update_booking_lambda" {
   source = "../../common/lambda"
-  ecr_uri     = var.create_book_ecr_ui
+  ecr_uri     = var.update_book_ecr_ui
   tag         = var.image_tag_lambda
   timeout     = 15
   memory_size = 512

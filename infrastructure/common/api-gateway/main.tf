@@ -31,27 +31,32 @@ resource "aws_api_gateway_method_response" "response_200" {
   status_code = "200"
 }
 
-# resource "aws_api_gateway_integration_response" "IntegrationResponse" {
-#   rest_api_id = aws_api_gateway_rest_api.rest-api.id
-#   resource_id = aws_api_gateway_resource.api-gw.id
-#   http_method = aws_api_gateway_method.api-gw-method.http_method
-#   status_code = aws_api_gateway_method_response.response_200.status_code
+resource "aws_api_gateway_integration_response" "IntegrationResponse" {
+  rest_api_id = aws_api_gateway_rest_api.rest-api.id
+  resource_id = aws_api_gateway_resource.api-gw.id
+  http_method = aws_api_gateway_method.api-gw-method.http_method
+  status_code = aws_api_gateway_method_response.response_200.status_code
+  depends_on = [
+    aws_api_gateway_integration.api-gw-integration
+  ]
 
-# }
+}
 
 
 resource "aws_api_gateway_deployment" "api-gw-deployment" {
   depends_on = [
-    aws_api_gateway_integration.api-gw-integration
+    aws_api_gateway_integration.api-gw-integration,
+    aws_api_gateway_integration_response.IntegrationResponse
   ]
   rest_api_id = aws_api_gateway_rest_api.rest-api.id
   stage_name  = var.stage_name
+
+  # triggers = {
+  #   redeployment = sha1(jsonencode([
+  #     aws_api_gateway_resource.api-gw.id,
+  #     aws_api_gateway_method.api-gw-method.id,
+  #     aws_api_gateway_integration.api-gw-integration.id,
+  #   ]))
+  # }
+  
 }
-
-
-
-# resource "aws_api_gateway_base_path_mapping" "api_gw_domain_mapping" {
-#   api_id      = aws_api_gateway_rest_api.rest-api.id
-#   domain_name = var.domain_name
-# }
-

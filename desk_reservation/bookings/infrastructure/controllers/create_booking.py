@@ -12,7 +12,7 @@ from desk_reservation.shared.infrastructure.dependency_injection.services_factor
 def create_book(event, context=None, callback=None):
     try:
         booking_service = booking_service_factory()
-        booking = SeatBooking(**event["event"])
+        booking = SeatBooking(**event)
         booking_creator = BookingCreator(booking_service)
         result = booking_creator.execute(booking)
 
