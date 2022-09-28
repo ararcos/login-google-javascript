@@ -30,3 +30,8 @@ variable "permissions" {
 variable "env_variables" {
   default = []
 }
+
+variable "source_arn" {
+  type = string
+  default = ""
+}

@@ -16,24 +16,7 @@ module "get_booking_lambda" {
   memory_size = 512
   role_name   = "get_booking_role"
   func_name   = "get_booking_controller"
-  
-  permissions = [
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "execute-api:Invoke"           
-      ],
-      "Resource" : [
-        "${var.get_book_ecr_arn}"
-      ]
-    }
-  ]
-}
-  ]
-
+  source_arn = "arn:aws:execute-api:${var.myregion}:${var.accountId}:${module.get_booking_api.selected}/*/${module.get_booking_api.api_method}${module.get_booking_api.api_path}"
 }
 
 module "find_booking_lambda" {
@@ -44,24 +27,6 @@ module "find_booking_lambda" {
   memory_size = 512
   role_name   = "find_booking_role"
   func_name   = "find_booking_controller"
-
-  permissions = [
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "execute-api:Invoke"           
-      ],
-      "Resource" : [
-        "${var.find_book_ecr_arn}"
-      ]
-    }
-  ]
-}
-  ]
-
 }
 
 module "update_booking_lambda" {

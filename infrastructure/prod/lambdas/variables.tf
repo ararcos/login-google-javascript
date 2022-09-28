@@ -24,10 +24,12 @@ variable "image_tag_lambda" {
   default     = "latest"
 }
 
-variable "get_book_ecr_arn" {
+variable "myregion" {
   type        = string
+  default     = "latest"
 }
 
-variable "find_book_ecr_arn" {
+variable "accountId" {
   type        = string
+  default     = "latest"
 }
