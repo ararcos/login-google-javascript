@@ -16,7 +16,8 @@ module "get_booking_lambda" {
   memory_size = 512
   role_name   = "get_booking_role"
   func_name   = "get_booking_controller"
-  source_arn = "arn:aws:execute-api:${var.myregion}:${var.accountId}:${module.get_booking_api.selected}/*/${module.get_booking_api.api_method}${module.get_booking_api.api_path}"
+  #source_arn = "arn:aws:execute-api:${var.myregion}:${var.accountId}:${module.get_booking_api.selected}/*/${module.get_booking_api.api_method}${module.get_booking_api.api_path}"
+  source_arn = "arn:aws:execute-api:${var.myregion}:${var.accountId}:${module.get_booking_api.selected}/*/*/"
 }
 
 module "find_booking_lambda" {
