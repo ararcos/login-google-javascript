@@ -2,10 +2,10 @@ variable "create_book_ecr_ui" {
   type        = string
   description = "ECR Repository URI for create_booking"
 }
-# variable "get_book_ecr_ui" {
-#   type        = string
-#   description = "ECR Repository URI for get_booking"
-# }
+variable "get_book_ecr_ui" {
+  type        = string
+  description = "ECR Repository URI for get_booking"
+}
 variable "find_book_ecr_ui" {
   type        = string
   description = "ECR Repository URI for find_booking"

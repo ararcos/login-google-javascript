@@ -8,15 +8,15 @@ module "create_booking_api" {
   #domain_name   = "www.ioet-desk-reservation.com/createbooking"
 }
 
-# module "get_booking_api" {
-#   source        = "../../common/api-gateway"
-#   api_gw_name   = "get_booking"
-#   method        = "GET"
-#   path_part     = "booking"
-#   lambda        = module.get_booking_lambda.function
-#   stage_name    = "prod"
-#   #domain_name   = "www.ioet-desk-reservation.com/createbooking"
-# }
+module "get_booking_api" {
+  source        = "../../common/api-gateway"
+  api_gw_name   = "get_booking"
+  method        = "GET"
+  path_part     = "booking"
+  lambda        = module.get_booking_lambda.function
+  stage_name    = "prod"
+  #domain_name   = "www.ioet-desk-reservation.com/createbooking"
+}
 
 module "find_booking_api" {
   source        = "../../common/api-gateway"
