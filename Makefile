@@ -2,6 +2,7 @@ POETRY=poetry
 PYLINT=$(POETRY) run pylint
 PACKAGE=desk_reservation
 ECR_URI=$$(cd infrastructure/prod; terraform output base_ecr_ui | tr -d '"')
+COMMIT_ID=$$(git rev-parse HEAD)
 BASE_ECR_TAG=latest
 LOGIN=1
 AWS_REGION="us-east-1"
@@ -45,27 +46,25 @@ build_base: Dockerfile.base base.tar
 push_base: build_base
 		docker push $(ECR_URI):$(BASE_ECR_TAG)
 
+build_and_deploy_lambdas: PUSH=1
 build_and_deploy_lambdas: docker_template.json
+	for index in $$(jq '.[].INDEX' $<) ; do \
+		DOCKER_BASE=$(ECR_URI) \
+		BASE_TAG=$(BASE_ECR_TAG) \
+		LAMBDA_FILE="$$(jq -r '.['$$index'].LAMBDA_FILE' $< )"  \
+		LAMBDA_HANDLER="$$(jq -r '.['$$index'].LAMBDA_HANDLER' $< )"  \
+		envsubst < Dockerfile.tmpl | tee Dockerfile.tmp; \
+		docker build -t $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)":$(BASE_ECR_TAG) -f Dockerfile.tmp . ; \
+		if [ "$(PUSH)" = "1" ] ; then \
+			docker push $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)":$(BASE_ECR_TAG) ; \
+		fi ; \
+	done
 
-		for index in $$(jq '.[].INDEX' $<) ; do \
-				echo $$index ; \
-				DOCKER_BASE=$(ECR_URI) \
-				BASE_TAG=$(BASE_ECR_TAG) \
-				LAMBDA_FILE="$$(jq -r '.['$$index'].LAMBDA_FILE' $< )"  \
-				LAMBDA_HANDLER="$$(jq -r '.['$$index'].LAMBDA_HANDLER' $< )"  \
-				envsubst < Dockerfile.tmpl | tee Dockerfile.tmp; \
-				docker build -t $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)":$(BASE_ECR_TAG) -f Dockerfile.tmp . ; \
-				docker push $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)":$(BASE_ECR_TAG) ; \
-			done
+build_lambdas: build_base
+	$(MAKE) build_and_deploy_lambdas PUSH=0 ECR_REGISTRY=local
 
-build_lambdas: docker_template.json
+docker-compose.yml: docker-compose.yml.tmpl
+	COMMIT_ID=$(COMMIT_ID) envsubst < $< > $@
 
-		for index in $$(jq '.[].INDEX' $<) ; do \
-				echo $$index ; \
-				DOCKER_BASE="Dockerfile.base" \
-				BASE_TAG=$(BASE_ECR_TAG) \
-				LAMBDA_FILE="$$(jq -r '.['$$index'].LAMBDA_FILE' $< )"  \
-				LAMBDA_HANDLER="$$(jq -r '.['$$index'].LAMBDA_HANDLER' $< )"  \
-				envsubst < Dockerfile.tmpl | tee Dockerfile.tmp; \
-				docker build -t $$(jq -r '.['$$index'].ECR_NAME' $<)":$(BASE_ECR_TAG) -f Dockerfile.tmp . ; \
-			done
+run_docker_images: docker-compose.yml build_lambdas
+	docker-compose up

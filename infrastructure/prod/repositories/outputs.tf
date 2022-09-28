@@ -20,3 +20,11 @@ output "update_book_ecr_ui" {
 output "delete_book_ecr_ui" {
   value = module.delete_book_ECR.ecr_uri_lambda
 }
+
+output "get_book_ecr_arn" {
+  value = module.get_book_ECR.arn
+}
+
+output "find_book_ecr_arn" {
+  value = module.find_book_ECR.arn
+}

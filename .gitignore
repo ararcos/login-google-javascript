@@ -29,3 +29,6 @@ firebase_credentials.json
 .terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.*
+
+docker-compose.yml
+Dockerfile.tmp

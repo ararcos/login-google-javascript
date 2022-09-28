@@ -1,0 +1,22 @@
+version: "3.3"
+services:
+  get_booking:
+    image: local/get_booking:$COMMIT_ID
+    ports:
+      - "9000:8080"
+  update_booking:
+    image: local/update_booking:$COMMIT_ID
+    ports:
+      - "9001:8080"
+  find_booking:
+    image: local/find_booking:$COMMIT_ID
+    ports:
+      - "9002:8080"
+  delete_booking:
+    image: local/delete_booking:$COMMIT_ID
+    ports:
+      - "9003:8080"
+  create_booking:
+    image: local/create_booking:$COMMIT_ID
+    ports:
+      - "9004:8080"
