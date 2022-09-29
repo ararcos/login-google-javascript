@@ -29,6 +29,20 @@ resource "aws_api_gateway_integration" "api-gw-integration" {
   integration_http_method = "POST"
   type                    = "AWS"
   uri                     = var.lambda.invoke_arn
+  passthrough_behavior = "WHEN_NO_TEMPLATES"
+  request_templates = {
+    "application/json" = <<EOF
+    #set($allParams = $input.params())
+    {
+    "${var.param_name}" : "$allParams.path.${var.param_name}"
+    #if($allParams.querystring.keySet().size()>0),#end
+    #foreach($paramName in $allParams.querystring.keySet())
+    "$paramName" : "$util.escapeJavaScript($allParams.querystring.get($paramName))"
+    #if($foreach.hasNext),#end
+    #end
+    }
+    EOF
+}
 }
 
 resource "aws_api_gateway_method_response" "response_200" {
@@ -36,7 +50,6 @@ resource "aws_api_gateway_method_response" "response_200" {
   resource_id = aws_api_gateway_resource.api-gw.id
   http_method = aws_api_gateway_method.api-gw-method.http_method
   status_code = "200"
-  response_models     = {"application/json" = "Empty"}
 }
 
 resource "aws_api_gateway_integration_response" "IntegrationResponse" {

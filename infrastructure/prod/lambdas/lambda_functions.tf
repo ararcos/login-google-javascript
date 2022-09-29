@@ -12,7 +12,7 @@ module "create_booking_lambda" {
 module "get_booking_lambda" {
   source = "../../common/lambda"
   ecr_uri     = var.get_book_ecr_ui
-  tag         = var.image_tag_lambda
+  tag         = "latest"
   timeout     = 15
   memory_size = 512
   role_name   = "get_booking_role"

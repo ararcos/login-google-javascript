@@ -47,7 +47,8 @@ push_base: build_base
 		docker push $(ECR_URI):$(BASE_ECR_TAG)
 
 build_and_deploy_lambdas: PUSH=1
-build_and_deploy_lambdas: docker_template.json
+build_and_deploy_lambdas: LOGIN=1
+build_and_deploy_lambdas: docker_template.json login_ecr
 	for index in $$(jq '.[].INDEX' $<) ; do \
 		DOCKER_BASE=$(ECR_URI) \
 		BASE_TAG=$(BASE_ECR_TAG) \
