@@ -9,10 +9,9 @@ from desk_reservation.shared.domain.exceptions import IdNotFoundError
 from desk_reservation.bookings.application import BookingGetter
 
 def get_booking_controller(event, context=None, callback=None):
-    return ControllerResponse(
-        status_code=HTTPStatus.CREATED,
-        body=json.dumps(event.pop('booking_id'), default=str)
-    ).__dict__
+        return ControllerResponse(
+            status_code=HTTPStatus.CREATED,
+            body=event.pop('booking_id')).__dict__
 
     # booking_service = booking_service_factory()
     # booking_id = event.pop('booking_id')

@@ -1,4 +1,5 @@
 from http import HTTPStatus
+import json
 
 from desk_reservation.shared.infrastructure.controllers import message_response
 from desk_reservation.shared.infrastructure.dependency_injection.services_factory import booking_service_factory
@@ -14,7 +15,7 @@ def find_booking_controller(event, context=None, callback=None):
     booking_finder = BookingFinder(booking_service)
     filters = [
         Filter(field=_key, operator=Operator.EQUAL, value=_value)
-        for _key, _value in event['filters'].items()
+        for _key, _value in json.loads(event['filters']).items()
     ]
     criteria = Criteria(filters)
     try:

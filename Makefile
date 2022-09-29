@@ -61,8 +61,10 @@ build_and_deploy_lambdas: docker_template.json login_ecr
 		fi ; \
 	done
 
+build_lambdas: ECR_URI=local
+build_lambdas: BASE_ECR_TAG=$(COMMIT_ID)
 build_lambdas: build_base
-	$(MAKE) build_and_deploy_lambdas PUSH=0 ECR_REGISTRY=local
+	$(MAKE) build_and_deploy_lambdas PUSH=0 ECR_REGISTRY=local LOGIN=0 BASE_ECR_TAG=$(COMMIT_ID) ECR_URI=local
 
 docker-compose.yml: docker-compose.yml.tmpl
 	COMMIT_ID=$(COMMIT_ID) envsubst < $< > $@

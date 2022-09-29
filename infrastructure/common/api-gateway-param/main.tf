@@ -20,7 +20,7 @@ resource "aws_api_gateway_method" "api-gw-method" {
   http_method   = var.method
   authorization = "NONE"
 }
-
+#booking/
 resource "aws_api_gateway_integration" "api-gw-integration" {
   content_handling        = "CONVERT_TO_TEXT"
   rest_api_id             = aws_api_gateway_rest_api.rest-api.id

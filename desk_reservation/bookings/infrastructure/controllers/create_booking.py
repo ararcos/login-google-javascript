@@ -12,10 +12,9 @@ from desk_reservation.shared.infrastructure.dependency_injection.services_factor
 def create_book(event, context=None, callback=None):
     try:
         booking_service = booking_service_factory()
-        booking = SeatBooking(**event)
+        booking = SeatBooking(**json.loads(event["body"]))
         booking_creator = BookingCreator(booking_service)
         result = booking_creator.execute(booking)
-
         return ControllerResponse(
             status_code=HTTPStatus.CREATED,
             body=json.dumps(result.__dict__, default=str)

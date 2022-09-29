@@ -20,7 +20,7 @@ module "get_booking_api" {
 }
 
 module "find_booking_api" {
-  source        = "../../common/api-gateway"
+  source        = "../../common/api-gateway-query"
   api_gw_name   = "find_booking"
   method        = "GET"
   path_part     = "booking"

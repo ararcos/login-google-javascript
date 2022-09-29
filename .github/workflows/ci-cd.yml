@@ -106,7 +106,7 @@ jobs:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         BASE_ECR_TAG: ${{ github.sha }}
       run: |
-        make build_and_deploy_lambdas ECR_URI=$REGISTRY/${API_REGISTRY_NAME} BASE_ECR_TAG=$BASE_ECR_TAG ECR_REGISTRY=$REGISTRY
+        make build_and_deploy_lambdas ECR_URI=$REGISTRY/${API_REGISTRY_NAME} BASE_ECR_TAG=$BASE_ECR_TAG ECR_REGISTRY=$REGISTRY LOGIN=0
 
     - name: Terraform Plan
       id: plan2

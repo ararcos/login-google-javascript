@@ -1,3 +1,4 @@
+import json
 import typing
 
 
@@ -8,6 +9,7 @@ class ControllerResponse:
 
     def __str__(self):
         return str({
+            "isBase64Encoded": False,
             'statusCode': self.status_code,
             'headers': {
                 'Content-Type': 'application/json'

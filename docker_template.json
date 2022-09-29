@@ -1,6 +1,30 @@
 [
   {
     "INDEX": 0,
+    "LAMBDA_FILE": "desk_reservation/bookings/infrastructure/controllers/create_booking.py",
+    "LAMBDA_HANDLER": "create_booking.create_book",
+    "ECR_NAME": "create_booking"
+  },
+  {
+    "INDEX": 1,
+    "LAMBDA_FILE": "desk_reservation/bookings/infrastructure/controllers/delete_booking.py",
+    "LAMBDA_HANDLER": "delete_booking.delete_booking_controller",
+    "ECR_NAME": "delete_booking"
+  },
+  {
+    "INDEX": 2,
+    "LAMBDA_FILE": "desk_reservation/bookings/infrastructure/controllers/find_booking.py",
+    "LAMBDA_HANDLER": "find_booking.find_booking_controller",
+    "ECR_NAME": "find_booking"
+  },
+  {
+    "INDEX": 3,
+    "LAMBDA_FILE": "desk_reservation/bookings/infrastructure/controllers/update_booking.py",
+    "LAMBDA_HANDLER": "update_booking.update_booking_controller",
+    "ECR_NAME": "update_booking"
+  },
+  {
+    "INDEX": 4,
     "LAMBDA_FILE": "desk_reservation/bookings/infrastructure/controllers/get_booking.py",
     "LAMBDA_HANDLER": "get_booking.get_booking_controller",
     "ECR_NAME": "get_booking"
