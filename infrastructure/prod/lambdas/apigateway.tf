@@ -9,7 +9,8 @@ module "create_booking_api" {
 }
 
 module "get_booking_api" {
-  source        = "../../common/api-gateway"
+  source        = "../../common/api-gateway-param"
+  param_name    = "booking_id"
   api_gw_name   = "get_booking"
   method        = "GET"
   path_part     = "booking"

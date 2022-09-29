@@ -19,7 +19,7 @@ module "get_booking_lambda" {
   func_name   = "get_booking_controller"
   #source_arn = "arn:aws:execute-api:${var.myregion}:${var.accountId}:${module.get_booking_api.selected}/*/${module.get_booking_api.api_method}${module.get_booking_api.api_path}"
   #source_arn = "arn:aws:execute-api:${var.myregion}:${var.accountId}:${module.get_booking_api.selected}/*/*/"
-  source_arn  = "${module.get_booking_api.api_arn}/*/*/"
+  source_arn  = "${module.get_booking_api.api_arn}/*/GET/booking/*"
 }
 
 module "find_booking_lambda" {
