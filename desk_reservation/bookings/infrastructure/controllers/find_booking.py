@@ -11,19 +11,22 @@ from desk_reservation.shared.infrastructure.controllers import ControllerRespons
 from desk_reservation.bookings.application import BookingFinder
 
 def find_booking_controller(event, context=None, callback=None):
-    booking_service = booking_service_factory()
-    booking_finder = BookingFinder(booking_service)
-    filters = [
-        Filter(field=_key, operator=Operator.EQUAL, value=_value)
-        for _key, _value in json.loads(event['filters']).items()
-    ]
-    criteria = Criteria(filters)
-    try:
-        result = booking_finder.execute(criteria)
-        return ControllerResponse(HTTPStatus.OK, result).__dict__
+    return ControllerResponse(
+        status_code=HTTPStatus.CREATED,
+        body=event).__dict__
+    # booking_service = booking_service_factory()
+    # booking_finder = BookingFinder(booking_service)
+    # filters = [
+    #     Filter(field=_key, operator=Operator.EQUAL, value=_value)
+    #     for _key, _value in json.loads(event['filters']).items()
+    # ]
+    # criteria = Criteria(filters)
+    # try:
+    #     result = booking_finder.execute(criteria)
+    #     return ControllerResponse(HTTPStatus.OK, result).__dict__
 
-    except DomainError as err:
-        response = message_response(err.args)
-        return ControllerResponse(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR, body=response
-        ).__dict__
+    # except DomainError as err:
+    #     response = message_response(err.args)
+    #     return ControllerResponse(
+    #         status_code=HTTPStatus.INTERNAL_SERVER_ERROR, body=response
+    #     ).__dict__
