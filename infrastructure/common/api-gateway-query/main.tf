@@ -28,7 +28,7 @@ resource "aws_api_gateway_integration" "api-gw-integration" {
     #set($allParams = $input.params())
     {
     #foreach($paramName in $allParams.querystring.keySet())
-    "$paramName" : "$util.escapeJavaScript($allParams.querystring.get($paramName))"
+    "$paramName" : $util.escapeJavaScript($allParams.querystring.get($paramName))
     #if($foreach.hasNext),#end
     #end
     }

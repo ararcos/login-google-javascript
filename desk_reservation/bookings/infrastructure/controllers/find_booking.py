@@ -15,7 +15,7 @@ def find_booking_controller(event, context=None, callback=None):
     booking_finder = BookingFinder(booking_service)
     filters = [
         Filter(field=_key, operator=Operator.EQUAL, value=_value)
-        for _key, _value in event['filters'].items()
+        for _key, _value in json.loads(event['filters']).items()
     ]
     criteria = Criteria(filters)
     try:
