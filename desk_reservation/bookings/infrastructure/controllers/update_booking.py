@@ -35,7 +35,7 @@ def update_booking_controller(event, context=None, callback=None):
             body={"message": "Check Booking Attributes"}
         ).__dict__
 
-    except IdNotFoundError as err:
+    except IdNotFoundError as error:
         response = {
             'message': error.args[0]
         }

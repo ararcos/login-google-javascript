@@ -5,7 +5,6 @@ module "create_booking_api" {
   path_part     = "booking"
   lambda        = module.create_booking_lambda.function
   stage_name    = "prod"
-  #domain_name   = "www.ioet-desk-reservation.com/createbooking"
 }
 
 module "get_booking_api" {
@@ -16,7 +15,6 @@ module "get_booking_api" {
   path_part     = "booking"
   lambda        = module.get_booking_lambda.function
   stage_name    = "prod"
-  #domain_name   = "www.ioet-desk-reservation.com/createbooking"
 }
 
 module "find_booking_api" {
@@ -26,7 +24,6 @@ module "find_booking_api" {
   path_part     = "booking"
   lambda        = module.find_booking_lambda.function
   stage_name    = "prod"
-  #domain_name   = "www.ioet-desk-reservation.com/createbooking"
 }
 
 module "update_booking_api" {
@@ -36,7 +33,6 @@ module "update_booking_api" {
   path_part     = "booking"
   lambda        = module.update_booking_lambda.function
   stage_name    = "prod"
-  #domain_name   = "www.ioet-desk-reservation.com/createbooking"
 }
 
 module "delete_booking_api" {
@@ -46,5 +42,4 @@ module "delete_booking_api" {
   path_part     = "booking"
   lambda        = module.delete_booking_lambda.function
   stage_name    = "prod"
-  #domain_name   = "www.ioet-desk-reservation.com/createbooking"
 }

@@ -10,6 +10,4 @@ module "lambdas" {
     delete_book_ecr_ui  = module.repositories.delete_book_ecr_ui
     update_book_ecr_ui  = module.repositories.update_book_ecr_ui
     get_book_ecr_ui     = module.repositories.get_book_ecr_ui
-    # myregion            = "us-east-1"
-    # accountId           = "388813176377"
 }
