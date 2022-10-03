@@ -26,12 +26,12 @@ resource "aws_api_gateway_integration" "api-gw-integration" {
   request_templates = {
     "application/json" = <<EOF
     #set($allParams = $input.params())
-    {
-    #foreach($paramName in $allParams.querystring.keySet())
-    "$paramName" : "$util.escapeJavaScript($allParams.querystring.get($paramName))"
-    #if($foreach.hasNext),#end
-    #end
-    }
+    "queryStringParameters": {
+        #foreach($paramName in $allParams.querystring.keySet())
+        "$paramName" : "$util.escapeJavaScript($allParams.querystring.get($paramName))"
+        #if($foreach.hasNext),#end
+        #end
+        }
     EOF
 }
 }

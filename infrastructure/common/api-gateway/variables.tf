@@ -11,14 +11,15 @@ variable "lambda" {
   description = "Lambda Function resource"
 }
 
-# variable "domain_name" {
-#   description = "Domain Name resource"
-# }
-
 variable "stage_name" {
   type = string
 }
 
 variable "method" {
   type = string
+}
+
+variable "param_name" {
+  type = string
+  default = ""
 }

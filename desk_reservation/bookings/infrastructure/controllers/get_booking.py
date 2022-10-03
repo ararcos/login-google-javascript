@@ -10,7 +10,7 @@ from desk_reservation.bookings.application import BookingGetter
 
 def get_booking_controller(event, context=None, callback=None):
     booking_service = booking_service_factory()
-    booking_id = event.pop('booking_id')
+    booking_id = event["pathParameters"].pop('booking_id')
     booking_getter = BookingGetter(booking_service)
 
     try:

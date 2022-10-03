@@ -12,9 +12,9 @@ from desk_reservation.shared.domain.exceptions import IdNotFoundError
 def update_booking_controller(event, context=None, callback=None):
     try:
         booking_service = booking_service_factory()
-        booking_id = event.pop('booking_id')
-        user_id = event.pop('user_id')
-        edited_booking = Booking(**event['booking'])
+        booking_id = event["body"].pop('booking_id')
+        user_id = event["body"].pop('user_id')
+        edited_booking = Booking(**event["body"]['booking'])
         booking_updater = BookingUpdater(booking_service)
         result = booking_updater.execute(
                 booking_id=booking_id,

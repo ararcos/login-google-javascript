@@ -10,8 +10,8 @@ from desk_reservation.bookings.application import BookingDeleter
 
 def delete_booking_controller(event, context=None, callback=None):
     booking_service = booking_service_factory()
-    user_id = event.pop('user_id')
-    booking_id = event.pop('booking_id')
+    user_id = event["body"].pop('user_id')
+    booking_id = event["body"].pop('booking_id')
     booking_deleter = BookingDeleter(booking_service)
 
     try:

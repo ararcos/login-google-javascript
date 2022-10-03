@@ -25,4 +25,5 @@ variable "method" {
 
 variable "param_name" {
   type = string
+  default = ""
 }
