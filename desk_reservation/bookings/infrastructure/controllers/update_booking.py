@@ -14,15 +14,13 @@ def update_booking_controller(event, context=None, callback=None):
         booking_service = booking_service_factory()
         booking_id = json.loads(event["body"]).pop('booking_id')
         user_id = json.loads(event["body"]).pop('user_id')
-        edited_booking = Booking(**json.loads(event["body"]['booking']))
+        edited_booking = Booking(**(json.loads(event["body"])['booking']))
         booking_updater = BookingUpdater(booking_service)
         result = booking_updater.execute(
                 booking_id=booking_id,
                 user_id=user_id,
                 booking=edited_booking
         )
-        ##TODO return has_pet and has_child info too
-        ##Validate "booking_id" value from "updated_booking" has the same value of "booking_id" in the event
         response = (HTTPStatus.OK, result.__dict__) if result else( HTTPStatus.NOT_FOUND, None)
         return ControllerResponse(
             status_code=response[0],

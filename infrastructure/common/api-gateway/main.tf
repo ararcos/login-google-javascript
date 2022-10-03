@@ -27,7 +27,13 @@ resource "aws_api_gateway_integration" "api-gw-integration" {
     "application/json" = <<EOF
     #set($allParams = $input.params())
     {
-      "body": "$input.json('$')"
+        "body": "$util.escapeJavaScript($input.json('$'))",
+        "queryStringParameters": {
+            #foreach($paramName in $allParams.querystring.keySet())
+            "$paramName" : "$util.escapeJavaScript($allParams.querystring.get($paramName))"
+            #if($foreach.hasNext),#end
+            #end
+            }
     }
     EOF
 }

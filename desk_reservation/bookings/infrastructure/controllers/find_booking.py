@@ -9,18 +9,16 @@ from desk_reservation.shared.infrastructure.firestore.firestore_criteria.operato
 from desk_reservation.shared.domain.exceptions import DomainError
 from desk_reservation.shared.infrastructure.controllers import ControllerResponse
 from desk_reservation.bookings.application import BookingFinder
+from desk_reservation.shared.infrastructure.controllers import filters_controller
 
-def find_booking_controller(event, context=None, callback=None):
+def find_booking_controller(event, context):
     booking_service = booking_service_factory()
     booking_finder = BookingFinder(booking_service)
-    filters = [
-        Filter(field=_key, operator=Operator.EQUAL, value=_value)
-        for _key, _value in json.loads(event["queryStringParameters"]['filters']).items()
-    ]
-    criteria = Criteria(filters)
+    params = event.get('queryStringParameters')
     try:
+        criteria = filters_controller(params)
         result = booking_finder.execute(criteria)
-        return ControllerResponse(HTTPStatus.OK, result).__dict__
+        return ControllerResponse(HTTPStatus.OK, [ob.__dict__ for ob in result]).__dict__
 
     except DomainError as err:
         response = message_response(err.args)
