@@ -10,7 +10,7 @@ from desk_reservation.bookings.application import BookingGetter
 
 def get_booking_controller(event, context=None, callback=None):
     booking_service = booking_service_factory()
-    booking_id = event["pathParameters"].pop('booking_id')
+    booking_id = event['pathParameters']["booking_id"]
     booking_getter = BookingGetter(booking_service)
 
     try:
@@ -23,7 +23,7 @@ def get_booking_controller(event, context=None, callback=None):
     except IdNotFoundError as error:
         response = message_response(error.args)
         return ControllerResponse(
-        status_code=HTTPStatus.NOT_FOUND, body=response).__dict__
+        status_code=HTTPStatus.NOT_FOUND, body=json.dumps(response)).__dict__
 
     except DomainError as error:
         response = {
@@ -33,7 +33,7 @@ def get_booking_controller(event, context=None, callback=None):
             response['details'] = error.args[1]
         return ControllerResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            body=response
+            body=json.dumps(response)
         ).__dict__
     except Exception as error:
         return ControllerResponse(

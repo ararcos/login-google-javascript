@@ -12,9 +12,9 @@ from desk_reservation.shared.domain.exceptions import IdNotFoundError
 def update_booking_controller(event, context=None, callback=None):
     try:
         booking_service = booking_service_factory()
-        booking_id = event["body"].pop('booking_id')
-        user_id = event["body"].pop('user_id')
-        edited_booking = Booking(**event["body"]['booking'])
+        booking_id = json.loads(event["body"]).pop('booking_id')
+        user_id = json.loads(event["body"]).pop('user_id')
+        edited_booking = Booking(**json.loads(event["body"]['booking']))
         booking_updater = BookingUpdater(booking_service)
         result = booking_updater.execute(
                 booking_id=booking_id,
@@ -42,7 +42,7 @@ def update_booking_controller(event, context=None, callback=None):
         if len(error.args) == 2:
             response['details'] = error.args[1]
         return ControllerResponse(
-        status_code=HTTPStatus.NOT_FOUND, body=response).__dict__
+        status_code=HTTPStatus.NOT_FOUND, body=json.dumps(response)).__dict__
 
     except DomainError as error:
         response = message_response(error.args)

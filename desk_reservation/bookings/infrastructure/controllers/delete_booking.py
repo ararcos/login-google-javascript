@@ -1,4 +1,5 @@
 from http import HTTPStatus
+import json
 
 from desk_reservation.shared.domain.exceptions.id_not_found_error import IdNotFoundError
 
@@ -10,8 +11,8 @@ from desk_reservation.bookings.application import BookingDeleter
 
 def delete_booking_controller(event, context=None, callback=None):
     booking_service = booking_service_factory()
-    user_id = event["body"].pop('user_id')
-    booking_id = event["body"].pop('booking_id')
+    user_id = json.loads(event["body"]).pop('user_id')
+    booking_id = json.loads(event["body"]).pop('booking_id')
     booking_deleter = BookingDeleter(booking_service)
 
     try:
@@ -21,13 +22,13 @@ def delete_booking_controller(event, context=None, callback=None):
         )
         return ControllerResponse(
             status_code=HTTPStatus.OK,
-            body=result).__dict__
+            body=json.dumps(result)).__dict__
 
     except IdNotFoundError as err:
         response = message_response(err.args)
-        return ControllerResponse(status_code=HTTPStatus.NOT_FOUND, body=response).__dict__
+        return ControllerResponse(status_code=HTTPStatus.NOT_FOUND, body=json.dumps(response)).__dict__
 
     except DomainError as error:
         response = message_response(error.args)
-        return ControllerResponse(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, body=response
+        return ControllerResponse(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, body=json.dumps(response)
         ).__dict__

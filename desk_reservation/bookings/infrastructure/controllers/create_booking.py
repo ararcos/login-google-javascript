@@ -12,7 +12,7 @@ from desk_reservation.shared.infrastructure.dependency_injection.services_factor
 def create_book(event, context=None, callback=None):
     try:
         booking_service = booking_service_factory()
-        booking = SeatBooking(**event["body"])
+        booking = SeatBooking(**json.loads(event["body"]))
         booking_creator = BookingCreator(booking_service)
         result = booking_creator.execute(booking)
         return ControllerResponse(
@@ -28,11 +28,10 @@ def create_book(event, context=None, callback=None):
 
         return ControllerResponse(
             status_code=HTTPStatus.BAD_REQUEST,
-            body=response
+            body=json.dumps(response)
         ).__dict__
     except Exception as error:
         return ControllerResponse(
             status_code=HTTPStatus.BAD_REQUEST,
             body=str(error)
         ).__dict__
-        
