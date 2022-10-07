@@ -2,6 +2,7 @@ POETRY=poetry
 PYLINT=$(POETRY) run pylint
 PACKAGE=desk_reservation
 ENVIRONMENT=prod
+ENVIRONMENT_SUFFIX=
 ECR_URI=$$(cd infrastructure/$(ENVIRONMENT); terraform output base_ecr_ui | tr -d '"')
 COMMIT_ID=$$(git rev-parse HEAD)
 BASE_ECR_TAG=latest
@@ -56,9 +57,9 @@ build_and_deploy_lambdas: docker_template.json login_ecr
 		LAMBDA_FILE="$$(jq -r '.['$$index'].LAMBDA_FILE' $< )"  \
 		LAMBDA_HANDLER="$$(jq -r '.['$$index'].LAMBDA_HANDLER' $< )"  \
 		envsubst < Dockerfile.tmpl | tee Dockerfile.tmp; \
-		docker build -t $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)":$(BASE_ECR_TAG) -f Dockerfile.tmp . ; \
+		docker build -t $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)$(ENVIRONMENT_SUFFIX)":$(BASE_ECR_TAG) -f Dockerfile.tmp . ; \
 		if [ "$(PUSH)" = "1" ] ; then \
-			docker push $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)":$(BASE_ECR_TAG) ; \
+			docker push $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)$(ENVIRONMENT_SUFFIX)":$(BASE_ECR_TAG) ; \
 		fi ; \
 	done
 
