@@ -28,5 +28,179 @@
     "LAMBDA_FILE": "desk_reservation/bookings/infrastructure/controllers/get_booking.py",
     "LAMBDA_HANDLER": "get_booking.get_booking_controller",
     "ECR_NAME": "get_booking"
+  },
+  {
+    "INDEX": 5,
+    "LAMBDA_FILE": "desk_reservation/desks/infrastructure/controllers/create_desk.py",
+    "LAMBDA_HANDLER": "create_desk.create_desk_controller",
+    "ECR_NAME": "create_desk"
+  },
+  {
+    "INDEX": 6,
+    "LAMBDA_FILE": "desk_reservation/desks/infrastructure/controllers/delete_desk.py",
+    "LAMBDA_HANDLER": "delete_desk.delete_desk_controller",
+    "ECR_NAME": "delete_desk"
+  },
+  {
+    "INDEX": 7,
+    "LAMBDA_FILE": "desk_reservation/desks/infrastructure/controllers/find_desk.py",
+    "LAMBDA_HANDLER": "find_desk.find_desk_controller",
+    "ECR_NAME": "find_desk"
+  },
+  {
+    "INDEX": 8,
+    "LAMBDA_FILE": "desk_reservation/desks/infrastructure/controllers/update_desk.py",
+    "LAMBDA_HANDLER": "update_desk.update_desk_controller",
+    "ECR_NAME": "update_desk"
+  },
+  {
+    "INDEX": 9,
+    "LAMBDA_FILE": "desk_reservation/desks/infrastructure/controllers/get_desk.py",
+    "LAMBDA_HANDLER": "get_desk.get_desk_controller",
+    "ECR_NAME": "get_desk"
+  },
+  {
+    "INDEX": 10,
+    "LAMBDA_FILE": "desk_reservation/offices/infrastructure/controllers/create_office.py",
+    "LAMBDA_HANDLER": "create_office.create_office_controller",
+    "ECR_NAME": "create_office"
+  },
+  {
+    "INDEX": 11,
+    "LAMBDA_FILE": "desk_reservation/offices/infrastructure/controllers/delete_office.py",
+    "LAMBDA_HANDLER": "delete_office.delete_office_controller",
+    "ECR_NAME": "delete_office"
+  },
+  {
+    "INDEX": 12,
+    "LAMBDA_FILE": "desk_reservation/offices/infrastructure/controllers/find_office.py",
+    "LAMBDA_HANDLER": "find_office.find_office_controller",
+    "ECR_NAME": "find_office"
+  },
+  {
+    "INDEX": 13,
+    "LAMBDA_FILE": "desk_reservation/offices/infrastructure/controllers/update_office.py",
+    "LAMBDA_HANDLER": "update_office.update_office_controller",
+    "ECR_NAME": "update_office"
+  },
+  {
+    "INDEX": 14,
+    "LAMBDA_FILE": "desk_reservation/offices/infrastructure/controllers/get_office.py",
+    "LAMBDA_HANDLER": "get_office.get_office_controller",
+    "ECR_NAME": "get_office"
+  },
+  {
+    "INDEX": 15,
+    "LAMBDA_FILE": "desk_reservation/parkings/infrastructure/controllers/create_parking.py",
+    "LAMBDA_HANDLER": "create_parking.create_parking_controller",
+    "ECR_NAME": "create_parking"
+  },
+  {
+    "INDEX": 16,
+    "LAMBDA_FILE": "desk_reservation/parkings/infrastructure/controllers/delete_parking.py",
+    "LAMBDA_HANDLER": "delete_parking.delete_parking_controller",
+    "ECR_NAME": "delete_parking"
+  },
+  {
+    "INDEX": 17,
+    "LAMBDA_FILE": "desk_reservation/parkings/infrastructure/controllers/find_parking.py",
+    "LAMBDA_HANDLER": "find_parking.find_parking_controller",
+    "ECR_NAME": "find_parking"
+  },
+  {
+    "INDEX": 18,
+    "LAMBDA_FILE": "desk_reservation/parkings/infrastructure/controllers/update_parking.py",
+    "LAMBDA_HANDLER": "update_parking.update_parking_controller",
+    "ECR_NAME": "update_parking"
+  },
+  {
+    "INDEX": 19,
+    "LAMBDA_FILE": "desk_reservation/parkings/infrastructure/controllers/get_parking.py",
+    "LAMBDA_HANDLER": "get_parking.get_parking_controller",
+    "ECR_NAME": "get_parking"
+  },
+  {
+    "INDEX": 20,
+    "LAMBDA_FILE": "desk_reservation/ride/infrastructure/controllers/create_ride_booking.py",
+    "LAMBDA_HANDLER": "create_ride_booking.py.create_ride_booking_controller",
+    "ECR_NAME": "create_ride_booking"
+  },
+  {
+    "INDEX": 21,
+    "LAMBDA_FILE": "desk_reservation/ride/infrastructure/controllers/create_ride.py",
+    "LAMBDA_HANDLER": "create_ride.py.create_ride_controller",
+    "ECR_NAME": "create_parking"
+  },
+  {
+    "INDEX": 22,
+    "LAMBDA_FILE": "desk_reservation/ride/infrastructure/controllers/delete_ride.py",
+    "LAMBDA_HANDLER": "delete_ride.delete_ride_controller",
+    "ECR_NAME": "delete_ride"
+  },
+  {
+    "INDEX": 23,
+    "LAMBDA_FILE": "desk_reservation/ride/infrastructure/controllers/find_ride.py",
+    "LAMBDA_HANDLER": "find_ride.find_ride_controller",
+    "ECR_NAME": "find_ride"
+  },
+  {
+    "INDEX": 24,
+    "LAMBDA_FILE": "desk_reservation/seats/infrastructure/controllers/create_seat.py",
+    "LAMBDA_HANDLER": "create_seat.create_seat_controller",
+    "ECR_NAME": "create_seat"
+  },
+  {
+    "INDEX": 25,
+    "LAMBDA_FILE": "desk_reservation/seats/infrastructure/controllers/delete_seat.py",
+    "LAMBDA_HANDLER": "delete_seat.delete_seat_controller",
+    "ECR_NAME": "delete_seat"
+  },
+  {
+    "INDEX": 26,
+    "LAMBDA_FILE": "desk_reservation/seats/infrastructure/controllers/find_seat.py",
+    "LAMBDA_HANDLER": "find_seat.find_seat_controller",
+    "ECR_NAME": "find_seat"
+  },
+  {
+    "INDEX": 27,
+    "LAMBDA_FILE": "desk_reservation/seats/infrastructure/controllers/update_seat.py",
+    "LAMBDA_HANDLER": "update_seat.update_seat_controller",
+    "ECR_NAME": "update_seat"
+  },
+  {
+    "INDEX": 28,
+    "LAMBDA_FILE": "desk_reservation/seats/infrastructure/controllers/get_seat.py",
+    "LAMBDA_HANDLER": "get_seat.get_seat_controller",
+    "ECR_NAME": "get_seat"
+  },
+  {
+    "INDEX": 29,
+    "LAMBDA_FILE": "desk_reservation/users/infrastructure/controllers/create_user.py",
+    "LAMBDA_HANDLER": "create_user.create_user_controller",
+    "ECR_NAME": "create_user"
+  },
+  {
+    "INDEX": 30,
+    "LAMBDA_FILE": "desk_reservation/users/infrastructure/controllers/delete_user.py",
+    "LAMBDA_HANDLER": "delete_user.delete_user_controller",
+    "ECR_NAME": "delete_user"
+  },
+  {
+    "INDEX": 31,
+    "LAMBDA_FILE": "desk_reservation/users/infrastructure/controllers/find_user.py",
+    "LAMBDA_HANDLER": "find_user.find_user_controller",
+    "ECR_NAME": "find_user"
+  },
+  {
+    "INDEX": 32,
+    "LAMBDA_FILE": "desk_reservation/users/infrastructure/controllers/update_user.py",
+    "LAMBDA_HANDLER": "update_user.update_user_controller",
+    "ECR_NAME": "update_user"
+  },
+  {
+    "INDEX": 33,
+    "LAMBDA_FILE": "desk_reservation/users/infrastructure/controllers/get_user.py",
+    "LAMBDA_HANDLER": "get_user.get_user_controller",
+    "ECR_NAME": "get_user"
   }
 ]

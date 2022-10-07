@@ -18,8 +18,3 @@ variable "stage_name" {
 variable "method" {
   type = string
 }
-
-variable "param_name" {
-  type = string
-  default = ""
-}
