@@ -1,3 +1,5 @@
+name: CI/CD
+
 on:
   push:
     branches:
@@ -84,32 +86,32 @@ jobs:
       working-directory: ./${{ env.WORKING_DIR }}
       continue-on-error: true
 
-    - name: Update Pull Request with Plan
-      uses: actions/github-script@0.9.0
-      if: github.event_name == 'pull_request' && steps.changes.outputs.infrastructure == 'true'
-      env:
-        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const output = `#### [${{ env.WORKING_DIR }}] Terraform Plan 📖 \`${{ steps.plan.outcome }}\`
+    # - name: Update Pull Request with Plan
+    #   uses: actions/github-script@0.9.0
+    #   if: github.event_name == 'pull_request' && steps.changes.outputs.infrastructure == 'true'
+    #   env:
+    #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     script: |
+    #       const output = `#### [${{ env.WORKING_DIR }}] Terraform Plan 📖 \`${{ steps.plan.outcome }}\`
 
-          <details><summary>Show Plan</summary>
+    #       <details><summary>Show Plan</summary>
 
-          \`\`\`\n
-          ${process.env.PLAN}
-          \`\`\`
+    #       \`\`\`\n
+    #       ${process.env.PLAN}
+    #       \`\`\`
 
-          </details>
+    #       </details>
 
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+    #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          })
+    #       github.issues.createComment({
+    #         issue_number: context.issue.number,
+    #         owner: context.repo.owner,
+    #         repo: context.repo.repo,
+    #         body: output
+    #       })
 
     - name: Terraform Plan Status
       if: steps.plan.outcome == 'failure'

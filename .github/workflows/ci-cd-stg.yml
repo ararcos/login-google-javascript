@@ -1,3 +1,5 @@
+name: Staging CI/CD
+
 on:
   push:
     branches:
@@ -63,7 +65,7 @@ jobs:
         aws-region: ${{env.AWS_REGION}}
 
     - name: Login to Amazon ECR
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/development' && github.event_name == 'push'
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
@@ -116,12 +118,12 @@ jobs:
       run: exit 1
 
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.infrastructure == 'true'
+      if: github.ref == 'refs/heads/development' && github.event_name == 'push' && steps.changes.outputs.infrastructure == 'true'
       run: terraform apply -auto-approve -input=false -target=module.environment.module.repositories
       working-directory: ./${{ env.WORKING_DIR }}
       
     - name: Deploy Docker BASE
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/development' && github.event_name == 'push'
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         BASE_ECR_TAG: ${{ github.sha }}
@@ -129,7 +131,7 @@ jobs:
         make push_base ECR_URI=$REGISTRY/${API_REGISTRY_NAME} BASE_ECR_TAG=$BASE_ECR_TAG ENVIRONMENT=staging
 
     - name: Deploy Docker Lambdas
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/development' && github.event_name == 'push'
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         BASE_ECR_TAG: ${{ github.sha }}
@@ -138,7 +140,7 @@ jobs:
 
     - name: Terraform Plan
       id: plan2
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/development' && github.event_name == 'push'
       env:
         TF_VAR_IMAGE_TAG: ${{ github.sha }}
       run: terraform plan -no-color -input=false
@@ -150,7 +152,7 @@ jobs:
       run: exit 1
 
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/development' && github.event_name == 'push'
       env:
         TF_VAR_IMAGE_TAG: ${{ github.sha }}
       run: terraform apply -auto-approve -input=false
