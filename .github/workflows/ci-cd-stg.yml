@@ -80,36 +80,36 @@ jobs:
     - name: Terraform Plan
       id: plan
       if: github.event_name == 'pull_request' && steps.changes.outputs.infrastructure == 'true'
-      run: terraform plan -no-color -input=false -target=module.repositories
+      run: terraform plan -no-color -input=false -target=module.environment.module.repositories
       working-directory: ./${{ env.WORKING_DIR }}
       continue-on-error: true
 
-    - name: Update Pull Request with Plan
-      uses: actions/github-script@0.9.0
-      if: github.event_name == 'pull_request' && steps.changes.outputs.infrastructure == 'true'
-      env:
-        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const output = `#### [${{ env.WORKING_DIR }}] Terraform Plan 📖 \`${{ steps.plan.outcome }}\`
+    # - name: Update Pull Request with Plan
+    #   uses: actions/github-script@0.9.0
+    #   if: github.event_name == 'pull_request' && steps.changes.outputs.infrastructure == 'true'
+    #   env:
+    #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     script: |
+    #       const output = `#### [${{ env.WORKING_DIR }}] Terraform Plan 📖 \`${{ steps.plan.outcome }}\`
 
-          <details><summary>Show Plan</summary>
+    #       <details><summary>Show Plan</summary>
 
-          \`\`\`\n
-          ${process.env.PLAN}
-          \`\`\`
+    #       \`\`\`\n
+    #       ${process.env.PLAN}
+    #       \`\`\`
 
-          </details>
+    #       </details>
 
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+    #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          })
+    #       github.issues.createComment({
+    #         issue_number: context.issue.number,
+    #         owner: context.repo.owner,
+    #         repo: context.repo.repo,
+    #         body: output
+    #       })
 
     - name: Terraform Plan Status
       if: steps.plan.outcome == 'failure'
@@ -117,7 +117,7 @@ jobs:
 
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.infrastructure == 'true'
-      run: terraform apply -auto-approve -input=false -target=module.repositories
+      run: terraform apply -auto-approve -input=false -target=module.environment.module.repositories
       working-directory: ./${{ env.WORKING_DIR }}
       
     - name: Deploy Docker BASE

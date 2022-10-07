@@ -23,4 +23,5 @@ module "environment" {
   source = "../environment"
   env_suffix = "_stg"
   stage_name = "stage"
+  IMAGE_TAG = var.IMAGE_TAG
 }

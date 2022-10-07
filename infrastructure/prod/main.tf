@@ -22,4 +22,5 @@ provider "aws" {
 module "environment" {
   source = "../environment"
   stage_name = "prod"
+  IMAGE_TAG = var.IMAGE_TAG
 }
