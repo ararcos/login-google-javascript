@@ -15,3 +15,11 @@ terraform {
   }
 }
 
+provider "aws" {
+  region = "us-east-1"
+}
+
+module "environment" {
+  source = "../environment"
+  stage_name = "prod"
+}

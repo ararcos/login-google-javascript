@@ -33,3 +33,13 @@ variable "accountId" {
   type        = string
   default     = "latest"
 }
+
+variable "env_suffix" {
+  type        = string
+  default     = ""
+}
+
+variable "stage_name" {
+  type        = string
+  default     = "prod"
+}

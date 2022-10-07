@@ -1,5 +1,6 @@
 module "repositories" {
     source = "./repositories"
+    env_suffix = var.env_suffix
 }
 
 module "lambdas" {
@@ -10,4 +11,6 @@ module "lambdas" {
     delete_book_ecr_ui  = module.repositories.delete_book_ecr_ui
     update_book_ecr_ui  = module.repositories.update_book_ecr_ui
     get_book_ecr_ui     = module.repositories.get_book_ecr_ui
+    env_suffix          = var.env_suffix
+    stage_name          = var.stage_name
 }
