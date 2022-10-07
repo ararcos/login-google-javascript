@@ -1,7 +1,8 @@
 POETRY=poetry
 PYLINT=$(POETRY) run pylint
 PACKAGE=desk_reservation
-ECR_URI=$$(cd infrastructure/prod; terraform output base_ecr_ui | tr -d '"')
+ENVIRONMENT=prod
+ECR_URI=$$(cd infrastructure/$(ENVIRONMENT); terraform output base_ecr_ui | tr -d '"')
 COMMIT_ID=$$(git rev-parse HEAD)
 BASE_ECR_TAG=latest
 LOGIN=1

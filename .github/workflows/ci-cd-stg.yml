@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - main
+      - development
   pull_request:
 
 jobs:
@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-        WORKING_DIR: infrastructure/prod
+        WORKING_DIR: infrastructure/staging
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TF_ACTION_WORKING_DIR: 'infrastructure'
         AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID_2 }}
@@ -20,7 +20,7 @@ jobs:
         FIREBASE_PRIVATE_KEY: ${{secrets.FIREBASE_PRIVATE_KEY}}
         AWS_REGION: us-east-1
         #API_REGISTRY_NAME: ${{secrets.API_REGISTRY_NAME}}
-        API_REGISTRY_NAME: office_reservation_base
+        API_REGISTRY_NAME: office_reservation_base_stg
 
     steps:
     - uses: actions/checkout@v3
@@ -84,32 +84,32 @@ jobs:
       working-directory: ./${{ env.WORKING_DIR }}
       continue-on-error: true
 
-    - name: Update Pull Request with Plan
-      uses: actions/github-script@0.9.0
-      if: github.event_name == 'pull_request' && steps.changes.outputs.infrastructure == 'true'
-      env:
-        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const output = `#### [${{ env.WORKING_DIR }}] Terraform Plan 📖 \`${{ steps.plan.outcome }}\`
+    # - name: Update Pull Request with Plan
+    #   uses: actions/github-script@0.9.0
+    #   if: github.event_name == 'pull_request' && steps.changes.outputs.infrastructure == 'true'
+    #   env:
+    #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     script: |
+    #       const output = `#### [${{ env.WORKING_DIR }}] Terraform Plan 📖 \`${{ steps.plan.outcome }}\`
 
-          <details><summary>Show Plan</summary>
+    #       <details><summary>Show Plan</summary>
 
-          \`\`\`\n
-          ${process.env.PLAN}
-          \`\`\`
+    #       \`\`\`\n
+    #       ${process.env.PLAN}
+    #       \`\`\`
 
-          </details>
+    #       </details>
 
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+    #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          })
+    #       github.issues.createComment({
+    #         issue_number: context.issue.number,
+    #         owner: context.repo.owner,
+    #         repo: context.repo.repo,
+    #         body: output
+    #       })
 
     - name: Terraform Plan Status
       if: steps.plan.outcome == 'failure'
@@ -126,7 +126,7 @@ jobs:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         BASE_ECR_TAG: ${{ github.sha }}
       run: |
-        make push_base ECR_URI=$REGISTRY/${API_REGISTRY_NAME} BASE_ECR_TAG=$BASE_ECR_TAG
+        make push_base ECR_URI=$REGISTRY/${API_REGISTRY_NAME} BASE_ECR_TAG=$BASE_ECR_TAG ENVIRONMENT=staging
 
     - name: Deploy Docker Lambdas
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -134,7 +134,7 @@ jobs:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         BASE_ECR_TAG: ${{ github.sha }}
       run: |
-        make build_and_deploy_lambdas ECR_URI=$REGISTRY/${API_REGISTRY_NAME} BASE_ECR_TAG=$BASE_ECR_TAG ECR_REGISTRY=$REGISTRY LOGIN=0
+        make build_and_deploy_lambdas ECR_URI=$REGISTRY/${API_REGISTRY_NAME} BASE_ECR_TAG=$BASE_ECR_TAG ECR_REGISTRY=$REGISTRY LOGIN=0 ENVIRONMENT=staging
 
     - name: Terraform Plan
       id: plan2
