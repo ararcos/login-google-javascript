@@ -1,7 +1,9 @@
 POETRY=poetry
-PYLINT=$(POETRY) run pylint
+PYLINT=$(POETRY) run pylint --extension-pkg-whitelist='pydantic'
 PACKAGE=desk_reservation
-ECR_URI=$$(cd infrastructure/prod; terraform output base_ecr_ui | tr -d '"')
+ENVIRONMENT=prod
+ENVIRONMENT_SUFFIX=
+ECR_URI=$$(cd infrastructure/$(ENVIRONMENT); terraform output base_ecr_ui | tr -d '"')
 COMMIT_ID=$$(git rev-parse HEAD)
 BASE_ECR_TAG=latest
 LOGIN=1
@@ -13,15 +15,15 @@ install:
 	$(POETRY_EXPORT)
 
 test:
-		# @echo "=========================================Test with pytest========================================="
-		# @if [ "$(specific_test)" ]; then \
-		# python -m pytest -vv -s -k $(specific_test);\
-		# else \
-		# python -m pytest -v;\
-		# fi
-		# @echo "Completed test!"
+		@echo "=========================================Test with pytest========================================="
+		@if [ "$(specific_test)" ]; then \
+		python -m pytest -vv -s -k $(specific_test);\
+		else \
+		python -m pytest -v;\
+		fi
+		@echo "Completed test!"
 lint:
-	# $(PYLINT) ${PACKAGE}
+		$(PYLINT) ${PACKAGE}
 
 hooks:
 		cd .git/hooks && ln ../../.github/hooks/commit_msg.py ./commit-msg
@@ -46,25 +48,24 @@ build_base: Dockerfile.base base.tar
 push_base: build_base
 		docker push $(ECR_URI):$(BASE_ECR_TAG)
 
+build_and_deploy_cors: CORS_TAG=latest
+build_and_deploy_cors:
+		docker pull $(ECR_REGISTRY)/$(CORS_NAME):$(CORS_TAG) || (\
+			docker build -t $(ECR_REGISTRY)/$(CORS_NAME):$(CORS_TAG) -f Dockerfile.cors . && \
+			docker push $(ECR_REGISTRY)/$(CORS_NAME):$(CORS_TAG) \
+		)
+
 build_and_deploy_lambdas: PUSH=1
-build_and_deploy_lambdas: docker_template.json
+build_and_deploy_lambdas: LOGIN=1
+build_and_deploy_lambdas: docker_template.json login_ecr
 	for index in $$(jq '.[].INDEX' $<) ; do \
 		DOCKER_BASE=$(ECR_URI) \
 		BASE_TAG=$(BASE_ECR_TAG) \
 		LAMBDA_FILE="$$(jq -r '.['$$index'].LAMBDA_FILE' $< )"  \
 		LAMBDA_HANDLER="$$(jq -r '.['$$index'].LAMBDA_HANDLER' $< )"  \
 		envsubst < Dockerfile.tmpl | tee Dockerfile.tmp; \
-		docker build -t $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)":$(BASE_ECR_TAG) -f Dockerfile.tmp . ; \
+		docker build -t $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)$(ENVIRONMENT_SUFFIX)":$(BASE_ECR_TAG) -f Dockerfile.tmp . ; \
 		if [ "$(PUSH)" = "1" ] ; then \
-			docker push $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)":$(BASE_ECR_TAG) ; \
+			docker push $(ECR_REGISTRY)/"$$(jq -r '.['$$index'].ECR_NAME' $<)$(ENVIRONMENT_SUFFIX)":$(BASE_ECR_TAG) ; \
 		fi ; \
 	done
-
-build_lambdas: build_base
-	$(MAKE) build_and_deploy_lambdas PUSH=0 ECR_REGISTRY=local
-
-docker-compose.yml: docker-compose.yml.tmpl
-	COMMIT_ID=$(COMMIT_ID) envsubst < $< > $@
-
-run_docker_images: docker-compose.yml build_lambdas
-	docker-compose up

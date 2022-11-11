@@ -5,20 +5,20 @@ from desk_reservation.bookings.application import BookingCreator
 from desk_reservation.bookings.domain.entities import SeatBooking
 from desk_reservation.shared.domain.exceptions import DomainError
 from desk_reservation.shared.infrastructure.controllers import ControllerResponse
-from desk_reservation.shared.infrastructure.dependency_injection.services_factory import booking_service_factory
+from desk_reservation.shared.infrastructure.dependency_injection.services_factory import (
+    booking_service_factory,
+)
 
-
-# pylint: disable=W0613
+# pylint: disable=W0613 W0703 R0801 W0311
 def create_book(event, context=None, callback=None):
     try:
         booking_service = booking_service_factory()
-        booking = SeatBooking(**event)
+        booking = SeatBooking(**json.loads(event["body"]))
         booking_creator = BookingCreator(booking_service)
         result = booking_creator.execute(booking)
-
         return ControllerResponse(
             status_code=HTTPStatus.CREATED,
-            body=json.dumps(result.__dict__, default=str)
+            body=result.__dict__
         ).__dict__
     except DomainError as error:
         response = {

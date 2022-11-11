@@ -8,5 +8,5 @@ class OfficeFinder:
     def __init__(self, office_service: OfficeService):
         self.office_service = office_service
 
-    def execute(self, criteria: Criteria) -> List[Office]:
-        return self.office_service.find(criteria)
+    def execute(self, criteria: Criteria, populate: bool) -> List[Office]:
+        return self.office_service.find(criteria, populate)

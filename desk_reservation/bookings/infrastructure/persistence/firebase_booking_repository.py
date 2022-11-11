@@ -6,7 +6,7 @@ from ....shared.infrastructure.firestore.firestore_criteria.criteria import Crit
 from ...domain.entities import SeatBooking
 from ...domain.repositories import BookingRepository
 
-
+# pylint: disable=R0801
 class FirebaseBookingRepository(BookingRepository):
     def __init__(self, firebase_repository: FirebaseRepository):
         self.booking_reference = firebase_repository.data_base.collection('booking_seats')
@@ -32,10 +32,13 @@ class FirebaseBookingRepository(BookingRepository):
         query = self.booking_reference
         if criteria.filters:
             for _filter in criteria.filters:
+                value = _filter.value
+                if _filter.field in 'booked_date_init' or _filter.field == 'booked_date_end':
+                    value = datetime.strptime(value,'%Y-%m-%d %H:%M:%S')
                 query = query.where(
-                    _filter.field, _filter.operator.value, _filter.value)
-        result = [SeatBooking(**_doc.to_dict())
-                  for _doc in query.get()]
+                    _filter.field, _filter.operator.value, value
+                )
+        result = [SeatBooking(**_doc.to_dict()|{'booking_id': _doc.id}) for _doc in query.get()]
         return result
 
     def delete(self, booking_id: str, user_id: str) -> bool:

@@ -1,30 +1,28 @@
 from http import HTTPStatus
-from http.client import OK
 
 
-from ...application.desk_finder import DeskFinder
-from ....shared.infrastructure.controllers import ControllerResponse
-from ....shared.domain.exceptions.domain_error import DomainError
-from ....shared.infrastructure.firestore.firestore_criteria.filter import Filter
-from ....shared.infrastructure.firestore.firestore_criteria.criteria import Criteria
-from ....shared.infrastructure.firestore.firestore_criteria.operator import Operator
-from ....shared.infrastructure.dependency_injection.services_factory import desk_service_factory
-from ....shared.infrastructure.controllers.message_response import message_response
+from desk_reservation.desks.application.desk_finder import DeskFinder
+from desk_reservation.shared.infrastructure.controllers import ControllerResponse
+from desk_reservation.shared.domain.exceptions.domain_error import DomainError
+from desk_reservation.shared.infrastructure.dependency_injection.services_factory import (
+    desk_service_factory
+    )
+from desk_reservation.shared.infrastructure.controllers import filters_controller
 
-# pylint:disable=duplicate-code
-def find_desks_controller():
+# pylint: disable=W0613 duplicate-code
+def find_desks_controller(event, context):
     desk_service = desk_service_factory()
     desk_finder = DeskFinder(desk_service)
-    filters = [Filter(field='deleted_at', operator=Operator.EQUAL, value=None)]
-    criteria = Criteria(filters=filters)
+    params = event.get('queryStringParameters')
+    populate = params.get('populate', False) if params else False
     try:
-        result = desk_finder.execute(criteria)
-        return ControllerResponse(OK, result).__dict__
+        criteria = filters_controller(params)
+        result = desk_finder.execute(criteria, populate)
+        return ControllerResponse(HTTPStatus.OK, [ob.__dict__ for ob in result]).__dict__
 
     except DomainError as error:
-        response = message_response(error.args)
+        response = filters_controller(error.args)
         return ControllerResponse(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             body=response
         ).__dict__
-    

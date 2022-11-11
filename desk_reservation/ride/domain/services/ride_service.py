@@ -14,12 +14,12 @@ class RideService:
         self.user_repository = user_repository
 
     def ride_is_old(self, ride: Ride) -> bool:
-        if ride.ride_date < date.today():
+        if ride.ride_date.date() < date.today():
             return True
         return False
 
     def user_is_driver_of_ride(self, user_id: str, offerer_user_id: str) -> bool:
-        if user_id is offerer_user_id:
+        if user_id == offerer_user_id:
             return True
         return False
 
@@ -53,18 +53,32 @@ class RideService:
             return self.ride_repository.delete(ride_id)
         raise PermissionsError("User is not driver of ride")
 
+    def delete_booking_ride(self, ride_id: str, ride_booking_ids: List[str]) -> bool:
+        ride = self.ride_repository.find_by_id(ride_id)
+        if ride:
+            new_passengers = [id for id in ride.passengers if id not in ride_booking_ids]
+            for id in ride_booking_ids:
+                doc_ref = self.ride_repository.delete_booking_ride(id)
+            ride.passengers = new_passengers
+            self.ride_repository.update(user_id=ride.offerer_user_id, ride_id=ride_id, ride=ride)
+            return True
+        return False
+
     def booking_ride(self, ride_booking: RideBooking, ride: Ride) -> Optional[RideBooking]:
         if len(ride.passengers) < ride.total_spots:
             return self.ride_repository.booking_ride(ride_booking)
         raise BadRequestError("Ride is full")
 
-    def populate_booking_ride(self, passengers_ids: List[str]) -> List[RideBooking]:
+    def populate_booking_ride(self, passengers_ids: List[str]) -> List[dict]:
         passengers = []
         for passenger_id in passengers_ids:
             passenger = self.ride_repository.find_by_id_booking_ride(passenger_id)
             if passenger:
-                passengers.append(passenger)
+                passengers.append(passenger.__dict__)
         return passengers
+    
+    def find_booking_ride(self, criteria: Criteria) -> List[RideBooking]:
+        return self.ride_repository.find_booking_ride(criteria)
 
     def populate_user_info(self, offerer_user_id: str) -> User:
         user = self.user_repository.get(offerer_user_id)

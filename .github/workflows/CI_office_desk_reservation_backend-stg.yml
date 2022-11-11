@@ -1,0 +1,143 @@
+name: Staging CI/CD
+
+on:
+  push:
+    branches:
+      - test2
+  pull_request:
+
+jobs:
+  build-ci-cd-office-desk:
+    runs-on: ubuntu-latest
+
+    env:
+        WORKING_DIR: infrastructure/staging
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TF_ACTION_WORKING_DIR: 'infrastructure'
+        AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        NEXT_PUBLIC_PROJECT_ID: ${{secrets.NEXT_PUBLIC_PROJECT_ID}}
+        NEXT_PUBLIC_DATABASE_URL: ${{secrets.NEXT_PUBLIC_DATABASE_URL}}
+        FIREBASE_CLIENT_EMAIL: ${{secrets.FIREBASE_CLIENT_EMAIL}}
+        FIREBASE_PRIVATE_KEY: ${{secrets.FIREBASE_PRIVATE_KEY}}
+        AWS_REGION: us-east-1
+        API_REGISTRY_NAME: office_reservation_base_stg
+        SOPS_VERSION: 3.7.3
+        CORS_REGISTRY_NAME: cors_handler_stg
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.10.0
+
+    - name: Detect Changes on files
+      id: changes
+      uses: dorny/paths-filter@v2
+      with:
+        filters: |
+          infrastructure:
+            - 'infrastructure/staging/**'
+            - 'infrastructure/environment/**'
+            - 'infrastructure/common/**'
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+    
+    - name: Install dependencies
+      run: |
+        make install
+
+    # - name: Run linters
+    #   run: |
+    #     source .venv/bin/activate && make lint
+
+    # - name: Run tests
+    #   run: |
+    #     source .venv/bin/activate && make test
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{env.AWS_REGION}}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Terraform Init
+      id: init
+      run: terraform init
+      working-directory: ./${{ env.WORKING_DIR }}
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+      working-directory: ./${{ env.WORKING_DIR }}
+
+    - name: Terraform Plan
+      id: plan
+      run: terraform plan -no-color -input=false -target=module.environment.module.repositories
+      working-directory: ./${{ env.WORKING_DIR }}
+      continue-on-error: true
+
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -input=false -target=module.environment.module.repositories
+      working-directory: ./${{ env.WORKING_DIR }}
+
+    - name: Build and Push CORS if it doesn't exist yet
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: make build_and_deploy_cors ECR_REGISTRY=$REGISTRY CORS_NAME=$CORS_REGISTRY_NAME
+
+    - name: Install SOPS
+      run: |
+        curl -L https://github.com/mozilla/sops/releases/download/v${SOPS_VERSION}/sops_${SOPS_VERSION}_amd64.deb -o sops.deb
+        sudo dpkg -i sops.deb
+
+    - name: Decrypt staging sops .env
+      run: |
+        sops -d --output-type dotenv .env.sops.dev.json > .env
+
+    # - name: Deploy Docker BASE
+    #   if: github.ref == 'refs/heads/development' && github.event_name == 'push'
+    #   env:
+    #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #     BASE_ECR_TAG: f87d2e8fcfd386c630c3c7242c72ab4967577ebd
+    #   run: |
+    #     make push_base ECR_URI=$REGISTRY/${API_REGISTRY_NAME} BASE_ECR_TAG=$BASE_ECR_TAG ENVIRONMENT=staging
+
+    - name: Deploy Docker Lambdas
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        BASE_ECR_TAG: f87d2e8fcfd386c630c3c7242c72ab4967577ebd
+      run: |
+        make build_and_deploy_lambdas ECR_URI=$REGISTRY/${API_REGISTRY_NAME} BASE_ECR_TAG=$BASE_ECR_TAG ECR_REGISTRY=$REGISTRY LOGIN=0 ENVIRONMENT=staging ENVIRONMENT_SUFFIX=_stg
+
+    - name: Terraform Plan
+      id: plan2
+      env:
+        TF_VAR_IMAGE_TAG: f87d2e8fcfd386c630c3c7242c72ab4967577ebd
+      run: terraform plan -no-color -input=false
+      working-directory: ./${{ env.WORKING_DIR }}
+      continue-on-error: true
+
+    - name: Terraform Plan Status
+      if: steps.plan2.outcome == 'failure'
+      run: exit 1
+
+    - name: Terraform Apply
+      env:
+        TF_VAR_IMAGE_TAG: f87d2e8fcfd386c630c3c7242c72ab4967577ebd
+      run: terraform apply -auto-approve -input=false
+      working-directory: ./${{ env.WORKING_DIR }}

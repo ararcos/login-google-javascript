@@ -1,0 +1,134 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main2
+  pull_request:
+
+jobs:
+  build-ci-cd-office-desk:
+    runs-on: ubuntu-latest
+
+    env:
+        WORKING_DIR: infrastructure/prod
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TF_ACTION_WORKING_DIR: 'infrastructure'
+        AWS_ACCESS_KEY_ID:  ${{ secrets.ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY:  ${{ secrets.SECRET_ACCESS_KEY }}
+        NEXT_PUBLIC_PROJECT_ID: ${{secrets.NEXT_PUBLIC_PROJECT_ID}}
+        NEXT_PUBLIC_DATABASE_URL: ${{secrets.NEXT_PUBLIC_DATABASE_URL}}
+        FIREBASE_CLIENT_EMAIL: ${{secrets.FIREBASE_CLIENT_EMAIL}}
+        FIREBASE_PRIVATE_KEY: ${{secrets.FIREBASE_PRIVATE_KEY}}
+        AWS_REGION: us-east-1
+        API_REGISTRY_NAME: office_reservation_base
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.10.0
+
+    - name: Detect Changes on files
+      id: changes
+      uses: dorny/paths-filter@v2
+      with:
+        filters: |
+          infrastructure:
+            - 'infrastructure/prod/**'
+            - 'infrastructure/environment/**'
+            - 'infrastructure/common/**'
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+    
+    - name: Install dependencies
+      run: |
+        make install
+
+    - name: Run linters
+      run: |
+        source .venv/bin/activate && make lint
+
+    - name: Run tests
+      run: |
+        source .venv/bin/activate && make test
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{env.AWS_REGION}}
+
+    - name: Login to Amazon ECR
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Terraform Init
+      id: init
+      run: terraform init
+      working-directory: ./${{ env.WORKING_DIR }}
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+      working-directory: ./${{ env.WORKING_DIR }}
+
+    - name: Terraform Plan
+      id: plan
+      if: github.event_name == 'pull_request' && steps.changes.outputs.infrastructure == 'true'
+      run: terraform plan -no-color -input=false -target=module.environment.module.repositories
+      working-directory: ./${{ env.WORKING_DIR }}
+      continue-on-error: true
+
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.infrastructure == 'true'
+      run: terraform apply -auto-approve -input=false -target=module.environment.module.repositories
+      working-directory: ./${{ env.WORKING_DIR }}
+      
+    - name: Deploy Docker BASE
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        BASE_ECR_TAG: ${{ github.sha }}
+      run: |
+        make push_base ECR_URI=$REGISTRY/${API_REGISTRY_NAME} BASE_ECR_TAG=$BASE_ECR_TAG
+
+    - name: Deploy Docker Lambdas
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        BASE_ECR_TAG: ${{ github.sha }}
+      run: |
+        make build_and_deploy_lambdas ECR_URI=$REGISTRY/${API_REGISTRY_NAME} BASE_ECR_TAG=$BASE_ECR_TAG ECR_REGISTRY=$REGISTRY LOGIN=0
+
+    - name: Terraform Plan
+      id: plan2
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      env:
+        TF_VAR_IMAGE_TAG: ${{ github.sha }}
+      run: terraform plan -no-color -input=false
+      working-directory: ./${{ env.WORKING_DIR }}
+      continue-on-error: true
+
+    - name: Terraform Plan Status
+      if: steps.plan2.outcome == 'failure'
+      run: exit 1
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      env:
+        TF_VAR_IMAGE_TAG: ${{ github.sha }}
+      run: terraform apply -auto-approve -input=false
+      working-directory: ./${{ env.WORKING_DIR }}
+      

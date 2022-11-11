@@ -4,3 +4,4 @@ from .ride_finder import RideFinder
 from .ride_updater import RideUpdater
 from .ride_finder_by_id import RideFinderById
 from .ride_booking_create import RideBookingCreator
+from .ride_booking_deleter import RideBookingDeleter

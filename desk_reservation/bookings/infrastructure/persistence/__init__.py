@@ -1,1 +1,3 @@
 from .firebase_booking_repository import FirebaseBookingRepository
+from .firebase_booking_parking_repository import FirebaseBookingParkingRepository
+from .firebase_lock_repository import FirebaseLockRepository

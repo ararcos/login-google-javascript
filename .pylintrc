@@ -1,0 +1,22 @@
+
+[MASTER]
+init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.dirname(find_pylintrc()))"
+disable=
+    E0401, # import-error
+    E0402, # relative-beyond-top-level
+    C0114, # missing-module-docstring
+    C0115, # missing-class-docstring
+    C0116, # missing-function-docstring
+    R0903, # too-few-public-methods
+    R0902, # Too-many-instance-attributes
+    R0913, # Too-many-arguments
+
+[FORMAT]
+# Maximum number of characters on a single line.
+max-line-length=100
+# Maximum number of lines in a module.
+max-module-lines=300
+
+[REFACTORING]
+# Maximum number of nested blocks for function / method body
+max-nested-blocks=4

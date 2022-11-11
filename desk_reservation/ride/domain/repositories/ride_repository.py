@@ -28,6 +28,10 @@ class RideRepository(ABC):
         pass
 
     @abstractmethod
+    def delete_booking_ride(self, ride_id: str, ride_booking_ids: List[str]) -> bool:
+        pass
+
+    @abstractmethod
     def booking_ride(self, ride_booking: RideBooking) -> Optional[RideBooking]:
         pass
 

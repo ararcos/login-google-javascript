@@ -1,20 +1,25 @@
 from http import HTTPStatus
+import json
 from pydantic import ValidationError
+
 #pylint: disable=R0801
 
-from ....shared.domain.exceptions.permissions_error import PermissionsError
-from ....shared.infrastructure.controllers import message_response
-from ....shared.infrastructure.controllers import ControllerResponse
-from ....shared.infrastructure.dependency_injection import user_service_factory
-from ...application.user_editor import UserEditor
-from ...domain.entities.user import User
+from desk_reservation.shared.infrastructure.dependency_injection.services_factory import (
+    user_service_factory
+    )
+from desk_reservation.shared.domain.exceptions.permissions_error import PermissionsError
+from desk_reservation.shared.infrastructure.controllers import message_response
+from desk_reservation.shared.infrastructure.controllers import ControllerResponse
+from desk_reservation.users.application.user_editor import UserEditor
+from desk_reservation.users.domain.entities.user import User
 
-
-def edit_user_controller(event):
+# pylint: disable=W0613 W0703
+def update_user_controller(event, context=None, callback=None):
     try:
         user_service = user_service_factory()
-        google_id = event['google_id']
-        user = User(**event)
+        body = json.loads(event["body"])
+        google_id = body['google_id']
+        user = User(**body)
         user_editor = UserEditor(user_service)
         result = user_editor.execute(google_id=google_id, user=user)
         response = (HTTPStatus.OK, result.__dict__) if result else(

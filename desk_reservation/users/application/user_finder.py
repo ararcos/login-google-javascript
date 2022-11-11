@@ -10,4 +10,4 @@ class UserFinder:
         self.user_service = user_service
 
     def execute(self, criteria: Criteria) -> List[User]:
-        return self.user_service.find_users(criteria)
+        return self.user_service.find_user(criteria)

@@ -1,7 +1,6 @@
-import pydantic
 from datetime import datetime
 from typing import List, Union
-
+import pydantic
 
 class Office(pydantic.BaseModel):
     office_id: str
@@ -18,5 +17,6 @@ class Office(pydantic.BaseModel):
     deleted_by: str = None
 
     @pydantic.validator('created_at', pre=True, always=True)
-    def default_created(cls, v):
-        return v or datetime.now()
+    @classmethod
+    def default_created(cls, value):
+        return value or datetime.now()

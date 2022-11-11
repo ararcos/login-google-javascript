@@ -24,7 +24,7 @@ variable "func_name" {
 
 variable "permissions" {
   description = "Add aditional permissions to the lambda function"
-  default = []
+  default     = []
 }
 
 variable "env_variables" {
@@ -32,6 +32,6 @@ variable "env_variables" {
 }
 
 variable "source_arn" {
-  type = string
+  type    = string
   default = ""
 }

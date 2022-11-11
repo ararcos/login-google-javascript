@@ -5,7 +5,7 @@ resource "aws_lambda_function" "func" {
   package_type  = "Image"
   timeout       = var.timeout
   memory_size   = var.memory_size
-  dynamic environment {
+  dynamic "environment" {
     for_each = var.env_variables
     content {
       variables = environment.value
@@ -59,3 +59,4 @@ resource "aws_lambda_permission" "lambda_permision" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = var.source_arn
 }
+

@@ -1,25 +1,26 @@
 from http import HTTPStatus
+import json
 from pydantic.error_wrappers import ValidationError
 
-from ...application.parking_creator import ParkingCreator
-from ...domain.entities.parking import Parking
-from ....users.domain.entities.user import User
-from ....shared.domain.exceptions import NameAlreadyExistsError
-from ....shared.domain.exceptions.permissions_error import PermissionsError
-from ....shared.infrastructure.controllers import message_response
-from ....shared.domain.exceptions.domain_error import DomainError
-from ....shared.infrastructure.dependency_injection.services_factory import parking_service_factory
-from ....shared.infrastructure.controllers import ControllerResponse
+from desk_reservation.parkings.application.parking_creator import ParkingCreator
+from desk_reservation.parkings.domain.entities.parking import Parking
+from desk_reservation.shared.domain.exceptions import NameAlreadyExistsError
+from desk_reservation.shared.domain.exceptions.permissions_error import PermissionsError
+from desk_reservation.shared.infrastructure.controllers import message_response
+from desk_reservation.shared.domain.exceptions.domain_error import DomainError
+from desk_reservation.shared.infrastructure.dependency_injection.services_factory import parking_service_factory
+from desk_reservation.shared.infrastructure.controllers import ControllerResponse
 
 
 
-def create_parking_controller(event):
+def create_parking_controller(event, context=None, callback=None):
     parking_service = parking_service_factory()
     try:
-        user = User(**event['user'])
-        parking = Parking(**event['parking'])
+        body = json.loads(event["body"])
+        user_id = body.pop('user_id')
+        parking = Parking(**body)
         parking_creator = ParkingCreator(parking_service)
-        result = parking_creator.execute(user=user, parking=parking)
+        result = parking_creator.execute(user_id=user_id, parking=parking)
         return ControllerResponse(
             status_code=HTTPStatus.CREATED, body=result.__dict__).__dict__
 

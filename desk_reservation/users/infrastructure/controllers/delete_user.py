@@ -1,10 +1,10 @@
 from http import HTTPStatus
 
+from ....shared.infrastructure.dependency_injection.services_factory import user_service_factory
 from ....shared.domain.exceptions.domain_error import DomainError
 from ....shared.domain.exceptions.permissions_error import PermissionsError
 from ....shared.infrastructure.controllers import message_response
 from ....shared.infrastructure.controllers import ControllerResponse
-from ....shared.infrastructure.dependency_injection import user_service_factory
 from ...application.user_deleter import UserDeleter
 
 

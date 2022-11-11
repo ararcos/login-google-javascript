@@ -50,9 +50,9 @@ class OfficeService:
 
         return office
 
-    def find(self, criteria: Criteria) -> List[Office]:
+    def find(self, criteria: Criteria, populate: bool) -> List[Office]:
         offices = self.office_repository.find(criteria=criteria)
-        if len(offices) > 0:
+        if len(offices) > 0 and populate:
             for office in offices:
                 seats, parkings = self._populate_office(
                     seats_ids=office.seats, parkings_ids=office.parkings)

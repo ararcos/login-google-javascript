@@ -1,27 +1,13 @@
 {
-  "name": "login-google-javascript",
-  "version": "1.0.0",
-  "description": "login-google-javascript",
-  "main": "index.js",
-  "type": "module",
   "scripts": {
-    "job": "node jobs/test.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ararcos/login-google-javascript.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ararcos/login-google-javascript/issues"
-  },
-  "homepage": "https://github.com/ararcos/login-google-javascript#readme",
+    "dev": "sls offline start --httpPort=3001"
+  }, 
   "dependencies": {
-    "firebase-admin": "^10.2.0"
-  },
-  "devDependencies": {
     "dotenv": "^16.0.1"
+  },
+  "name": "office-desk-reservation-backend",
+  "devDependencies": {
+    "serverless-offline": "^10.0.2",
+    "serverless-python-requirements": "^5.4.0"
   }
 }

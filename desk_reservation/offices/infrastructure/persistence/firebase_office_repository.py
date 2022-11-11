@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import List, Optional
 
+
 from ...domain import Office, OfficeRepository
-from ....shared.domain import BadRequestError
 from ....shared.infrastructure import FirebaseRepository, Criteria
 
 
@@ -12,13 +12,10 @@ class FirebaseOfficeRepository(OfficeRepository):
         self.office_reference = firebase_repository.data_base.collection('office')
 
     def create(self, office: Office) -> Office:
-        office_to_create = office.__dict__
-        office_id = office_to_create.pop('office_id', None)
-        if office_id:
-            doc_ref = self.office_reference.document(office_id)
-            doc_ref.set(office_to_create)
-            return office
-        raise BadRequestError('field office_id is required')
+        doc_ref = self.office_reference.document(office.office_id)
+        doc_ref.set(office.__dict__)
+        return office
+
 
     def get(self, office_id: str) -> Optional[Office]:
         doc_ref = self.office_reference.document(office_id)
@@ -42,9 +39,9 @@ class FirebaseOfficeRepository(OfficeRepository):
         doc_ref = self.office_reference.document(office_id)
         doc = doc_ref.get()
         if doc.exists:
-            office_to_update = office.__dict__.update(
+            office.__dict__.update(
                 {'updated_at': datetime.now()})
-            doc_ref.update(office_to_update)
+            doc_ref.update(office.__dict__)
             return office
         return None
 

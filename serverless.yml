@@ -1,0 +1,226 @@
+service: office-desk-reservation-backend
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  timeout: 30
+  runtime: python3.9
+
+plugins:
+  - serverless-python-requirements
+  - serverless-offline
+custom:
+  pythonRequirements:
+    dockerizePip: true
+
+package:
+  exclude:
+    - node_modules/**
+    - venv/**
+
+functions:
+  create_book:
+    handler: desk_reservation.bookings.infrastructure.controllers.create_booking.create_book
+    events:
+      - http:
+          path: /bookings
+          method: POST
+  get_booking:
+    handler: desk_reservation.bookings.infrastructure.controllers.get_booking.get_booking_controller
+    events:
+      - http:
+          path: /bookings/{booking_id}
+          method: GET
+  update_booking:
+    handler: desk_reservation.bookings.infrastructure.controllers.update_booking.update_booking_controller
+    events:
+      - http:
+          path: /bookings
+          method: PATCH
+  delete_booking:
+    handler: desk_reservation.bookings.infrastructure.controllers.delete_booking.delete_booking_controller
+    events:
+      - http:
+          path: /bookings
+          method: DELETE
+  find_booking:
+    handler: desk_reservation.bookings.infrastructure.controllers.find_booking.find_booking_controller
+    events:
+      - http:
+          path: /bookings
+          method: GET
+  find_Office:
+    handler: desk_reservation.offices.infrastructure.controllers.find_offices.find_offices_controller
+    events:
+      - http:
+          path: /offices
+          method: GET
+  create_Office:
+    handler: desk_reservation.offices.infrastructure.controllers.create_office.create_office_controller
+    events:
+      - http:
+          path: /offices
+          method: POST
+  get_User:
+      handler: desk_reservation.users.infrastructure.controllers.get_user.get_user_controller
+      events:
+        - http:
+            path: /users/{user_id}
+            method: GET
+  create_User:
+    handler: desk_reservation.users.infrastructure.controllers.create_user.create_user_controller
+    events:
+      - http:
+          path: /users
+          method: POST
+  find_User:
+      handler: desk_reservation.users.infrastructure.controllers.find_user.find_user_controller
+      events:
+        - http:
+            path: /users
+            method: GET
+  update_User:
+      handler: desk_reservation.users.infrastructure.controllers.update_user.update_user_controller
+      events:
+        - http:
+            path: /users
+            method: PATCH
+  create_Desk:
+    handler: desk_reservation.desks.infrastructure.controllers.create_desk.create_desk_controller
+    events:
+      - http:
+          path: /desks
+          method: POST
+  find_desk:
+    handler: desk_reservation.desks.infrastructure.controllers.find_desks.find_desks_controller
+    events:
+      - http:
+          path: /desks
+          method: GET
+  create_Seat:
+    handler: desk_reservation.seats.infrastructure.controllers.create_seat.create_seat_controller
+    events:
+      - http:
+          path: /seats
+          method: POST
+  find_Seat:
+    handler: desk_reservation.seats.infrastructure.controllers.find_seat.find_seat_controller
+    events:
+      - http:
+          path: /seats
+          method: GET
+  delete_Seat:
+    handler: desk_reservation.seats.infrastructure.controllers.delete_seat.delete_seat_controller
+    events:
+      - http:
+          path: /seats
+          method: DELETE
+  update_Seat:
+    handler: desk_reservation.seats.infrastructure.controllers.update_seat.update_seat_controller
+    events:
+      - http:
+          path: /seats
+          method: PATCH
+  create_Parking:
+      handler: desk_reservation.parkings.infrastructure.controllers.create_parking.create_parking_controller
+      events:
+        - http:
+            path: /parkings
+            method: POST
+  find_Parking:
+    handler: desk_reservation.parkings.infrastructure.controllers.find_parking.find_parking_controller
+    events:
+      - http:
+          path: /parkings
+          method: GET
+  create_lock:
+    handler: desk_reservation.bookings.infrastructure.controllers.create_lock.create_lock_controller
+    events:
+      - http:
+          path: /lock-bookings
+          method: POST
+  delete_lock:
+    handler: desk_reservation.bookings.infrastructure.controllers.delete_lock.delete_lock_controller
+    events:
+      - http:
+          path: /lock-bookings
+          method: DELETE
+  find_lock:
+    handler: desk_reservation.bookings.infrastructure.controllers.find_lock.find_lock_controller
+    events:
+      - http:
+          path: /lock-bookings
+          method: GET
+  create_booking_parking:
+    handler: desk_reservation.bookings.infrastructure.controllers.create_booking_parking.create_booking_parking_controller
+    events:
+      - http:
+          path: /parking-bookings
+          method: POST
+  delete_booking_parking:
+    handler: desk_reservation.bookings.infrastructure.controllers.delete_booking_parking.delete_booking_parking_controller
+    events:
+      - http:
+          path: /parking-bookings
+          method: DELETE
+  find_booking_parking:
+    handler: desk_reservation.bookings.infrastructure.controllers.find_booking_parking.find_booking_parking_controller
+    events:
+      - http:
+          path: /parking-bookings
+          method: GET
+  update_booking_parking:
+    handler: desk_reservation.bookings.infrastructure.controllers.update_booking_parking.update_booking_parking_controller
+    events:
+      - http:
+          path: /parking-bookings
+          method: PATCH
+  create_ride:
+    handler: desk_reservation.ride.infrastructure.controllers.create_ride.create_ride_controller
+    events:
+      - http:
+          path: /rides
+          method: POST
+  find_ride:
+    handler: desk_reservation.ride.infrastructure.controllers.find_ride.find_ride_controller
+    events:
+      - http:
+          path: /rides
+          method: GET
+  update_ride:
+    handler: desk_reservation.ride.infrastructure.controllers.update_ride.update_ride_controller
+    events:
+      - http:
+          path: /rides
+          method: PATCH
+  delete_ride:
+    handler: desk_reservation.ride.infrastructure.controllers.delete_ride.delete_ride_controller
+    events:
+      - http:
+          path: /rides
+          method: DELETE
+  delete_booking_ride:
+    handler: desk_reservation.ride.infrastructure.controllers.delete_booking_ride.delete_booking_ride_controller
+    events:
+      - http:
+          path: /rides-booking
+          method: DELETE
+
+  create_booking_ride:
+    handler: desk_reservation.ride.infrastructure.controllers.create_ride_booking.create_ride_booking_controller
+    events:
+      - http:
+          path: /rides-booking
+          method: POST
+
+  send_driver_reminder:
+    handler: desk_reservation.notifications.infrastructure.controllers.send_ride_reminder.handler
+    events:
+      - http:
+          path: /reminder/driver
+          method: GET
+  driver_reminder:
+    handler: desk_reservation.notifications.infrastructure.controllers.send_ride_reminder.handler
+    events:
+      - schedule: cron(40 14 * * ? *)

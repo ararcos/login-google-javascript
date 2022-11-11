@@ -15,7 +15,7 @@ class RideFinder:
         for ride in riders:
             populated_rides.append(
                 RideResponse(
-                    rideInfo=ride,
+                    rideInfo=ride.__dict__,
                     userInfo=self.ride_service.populate_user_info(
                         ride.offerer_user_id
                     ).__dict__,

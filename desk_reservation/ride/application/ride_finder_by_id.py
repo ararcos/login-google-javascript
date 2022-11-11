@@ -12,5 +12,5 @@ class RideFinderById:
         if ride:
             user_info = self.ride_service.populate_user_info(
                 offerer_user_id=ride.offerer_user_id)
-            return RideResponse(rideInfo=ride, userInfo=user_info.__dict__)
+            return RideResponse(rideInfo=ride.__dict__, userInfo=user_info.__dict__)
         return None

@@ -1,0 +1,7 @@
+# python3.9 lambda base image
+FROM public.ecr.aws/lambda/python:3.9.2022.09.09.11
+
+COPY desk_reservation/shared/infrastructure/controllers/cors_controller.py .
+
+# setting the CMD
+CMD ["cors_controller.cors_handler"]

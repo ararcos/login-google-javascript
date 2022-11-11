@@ -10,5 +10,5 @@ class DeskFinder:
     def __init__(self, desk_service: DeskService):
         self.desk_service = desk_service
 
-    def execute(self, criteria: Criteria) -> List[Desk]:
-        return self.desk_service.find(criteria)
+    def execute(self, criteria: Criteria, populate: bool) -> List[Desk]:
+        return self.desk_service.find(criteria, populate)

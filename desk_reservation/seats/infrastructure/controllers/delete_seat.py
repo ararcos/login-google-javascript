@@ -1,19 +1,23 @@
 from http import HTTPStatus
+import json
 
-from ....shared.domain.exceptions.id_not_found_error import IdNotFoundError
-from ....shared.domain.exceptions.permissions_error import PermissionsError
-from ....shared.infrastructure.controllers import message_response
-from ...application.seat_deleter import SeatDeleter
-from ....shared.domain.exceptions.domain_error import DomainError
-from ....shared.infrastructure.dependency_injection.services_factory import seat_service_factory
-from ....shared.infrastructure.controllers import ControllerResponse
+from desk_reservation.seats.application.seat_deleter import SeatDeleter
+from desk_reservation.shared.domain.exceptions.id_not_found_error import IdNotFoundError
+from desk_reservation.shared.domain.exceptions.permissions_error import PermissionsError
+from desk_reservation.shared.infrastructure.controllers import message_response
+from desk_reservation.shared.domain.exceptions.domain_error import DomainError
+from desk_reservation.shared.infrastructure.dependency_injection.services_factory import (
+    seat_service_factory)
+from desk_reservation.shared.infrastructure.controllers import ControllerResponse
 
 
-def delete_seat_controller(event):
+# pylint: disable=W0613
+def delete_seat_controller(event, context=None, callback=None):
     seat_service = seat_service_factory()
-    user_id = event.pop('user_id')
-    seat_id = event.pop('seat_id')
-    office_id = event.pop('office_id')
+    body = json.loads(event["body"])
+    user_id = body.pop('user_id')
+    seat_id = body.pop('seat_id')
+    office_id = body.pop('office_id')
     seat_deleter = SeatDeleter(seat_service)
     try:
         result = seat_deleter.execute(

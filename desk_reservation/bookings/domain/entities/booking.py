@@ -6,7 +6,6 @@ import pydantic
 class Booking(pydantic.BaseModel):
     booking_id: str
     office_id: str
-    booked_by: dict
     booked_date_init: datetime
     booked_date_end: datetime
     created_at: datetime = None
@@ -16,18 +15,28 @@ class Booking(pydantic.BaseModel):
     deleted_by: str = None
 
     @pydantic.validator('created_at', pre=True, always=True)
-    def default_created(cls, v):
-        return v or datetime.now()
+    @classmethod
+    def default_created(cls, value):
+        return value or datetime.now()
 
 
 class SeatBooking(Booking):
+    booked_by: dict
     desk_id: str
     seat_id: str
     has_pet: bool
     has_child: bool
 
+class SeatBookingResponse(SeatBooking):
+    seat: dict = None
+    office: dict = None
+
 
 class ParkingBooking(Booking):
+    booked_by: dict
     parking_id: str
-    floor: str
-    name: str
+
+class LockBooking(Booking):
+    locked_by: dict
+    desk_id: str
+    seat_id: str

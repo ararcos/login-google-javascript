@@ -1,19 +1,21 @@
 from http import HTTPStatus
+import json
 from pydantic import ValidationError
-from ...domain import Ride
-from ...application import RideUpdater
-from ....shared.domain.exceptions import PermissionsError
-from ....shared.infrastructure.dependency_injection import ride_service_factory
-from ....shared.infrastructure import ControllerResponse, message_response
+from desk_reservation.ride.domain import Ride
+from desk_reservation.ride.application import RideUpdater
+from desk_reservation.shared.domain.exceptions import PermissionsError
+from desk_reservation.shared.infrastructure.dependency_injection import ride_service_factory
+from desk_reservation.shared.infrastructure import ControllerResponse, message_response
 
 
-def update_ride_controller(event):
+def update_ride_controller(event, context=None, callback=None):
 
     try:
         ride_service = ride_service_factory()
-        user_id = event.pop('user_id')
-        ride_id = event['ride_id']
-        ride = Ride(**event)
+        body = json.loads(event["body"])
+        user_id = body.pop('user_id')
+        ride_id = body['ride_id']
+        ride = Ride(**body)
         ride_updater = RideUpdater(ride_service)
         result = ride_updater.execute(
             user_id=user_id,

@@ -1,16 +1,18 @@
 from http import HTTPStatus
-from ...application import RideDeleter
-from ....shared.domain.exceptions import PermissionsError
-from ....shared.infrastructure.dependency_injection import ride_service_factory
-from ....shared.infrastructure import ControllerResponse
+import json
+from desk_reservation.ride.application import RideDeleter
+from desk_reservation.shared.domain.exceptions import PermissionsError
+from desk_reservation.shared.infrastructure.dependency_injection import ride_service_factory
+from desk_reservation.shared.infrastructure import ControllerResponse
 
 
-def delete_ride_controller(event):
+def delete_ride_controller(event, context=None, callback=None):
+    body = json.loads(event["body"])
     ride_service = ride_service_factory()
     ride_deleter = RideDeleter(ride_service)
     try:
         result = ride_deleter.execute(
-            user_id=event["user_id"], ride_id=event['ride_id'])
+            user_id=body["user_id"], ride_id=body['ride_id'])
         status_code = HTTPStatus.OK if result else HTTPStatus.NOT_FOUND
         return ControllerResponse(
             status_code=status_code,

@@ -8,5 +8,5 @@ class ParkingCreator:
     def __init__(self, parking_service: ParkingService):
         self.parking_service = parking_service
 
-    def execute(self, parking: Parking, user: User) -> Parking:
-        return self.parking_service.create_parking(user_id=user.google_id, parking=parking)
+    def execute(self, parking: Parking, user_id: str) -> Parking:
+        return self.parking_service.create_parking(user_id=user_id, parking=parking)

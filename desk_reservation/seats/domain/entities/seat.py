@@ -13,7 +13,9 @@ class Seat(pydantic.BaseModel):
     created_at: datetime = None
     is_laptop: bool
     position: List[int]
-    
+    leftPixels: float
+    topPixels: float
+
     @pydantic.validator("created_at", pre=True, always=True)
     @classmethod
     def default_created(cls, value):

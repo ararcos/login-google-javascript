@@ -17,7 +17,7 @@ class UserService:
             google_id=google_id)
         return user_find
 
-    def find_users(self, criteria: Criteria) -> List[User]:
+    def find_user(self, criteria: Criteria) -> List[User]:
         return self.user_repository.find(criteria)
 
     def create_user(self, user_id: str, user: User) -> User:
@@ -29,12 +29,11 @@ class UserService:
 
     def edit_user(self, user_id: str, user: User) -> Optional[User]:
         user_editor = self.user_repository.get(user_id)
-        if (user.google_id != user_id) or user_editor.admin is False:
-            raise PermissionsError('Update a User')
-        return self.user_repository.edit(
+        if (user.google_id == user_id) or user_editor.admin is True:
+            return self.user_repository.edit(
             google_id=user_id,
-            user=user
-        )
+            user=user)
+        raise PermissionsError('Update a User')
 
     def delete_user(self, google_id: str, user_id: str) -> bool:
         if self.is_admin(google_id) is False:

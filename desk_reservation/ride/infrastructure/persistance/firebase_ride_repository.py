@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from typing import List, Optional
 
 
@@ -19,8 +20,7 @@ class FirebaseRideRepository(RideRepository):
         ride_id = ride_to_create.pop('ride_id', None)
         if ride_id:
             doc_ref = self.ride_reference.document(ride_id)
-            doc = doc_ref.set(ride_to_create)
-            ride.ride_id = doc.id
+            doc_ref.set(ride_to_create)
             return ride
         raise BadRequestError('field ride_id is required')
 
@@ -35,9 +35,14 @@ class FirebaseRideRepository(RideRepository):
         query = self.ride_reference
         if criteria.filters:
             for _filter in criteria.filters:
+                value = _filter.value
+                if _filter.field == 'ride_date':
+                    value = datetime.strptime(value,'%Y-%m-%d %H:%M:%S')
                 query = query.where(
-                    _filter.field, _filter.operator.value, _filter.value)
-
+                    _filter.field, _filter.operator.value, value
+                )
+        if len(query.get()) >= 2:
+            query = query.order_by("ride_date")
         result = [Ride(**_doc.to_dict()|{'ride_id': _doc.id})
                   for _doc in query.get()]
         return result
@@ -46,14 +51,22 @@ class FirebaseRideRepository(RideRepository):
         doc_ref = self.ride_reference.document(ride_id)
         doc = doc_ref.get()
         if doc.exists:
-            ride_to_update = ride.__dict__.update(
+            ride.__dict__.update(
                 {'updated_at': datetime.now(), 'updated_by': user_id})
-            doc_ref.update(ride_to_update)
+            doc_ref.update(ride.__dict__)
             return ride
         return None
 
     def delete(self, ride_id: str) -> bool:
         doc_ref = self.ride_reference.document(ride_id)
+        doc = doc_ref.get()
+        if doc.exists:
+            doc_ref.update({'deleted_at': datetime.now()})
+            return True
+        return False
+
+    def delete_booking_ride(self, ride_booking_id: str) -> bool:
+        doc_ref = self.ride_booking_reference.document(ride_booking_id)
         doc = doc_ref.get()
         if doc.exists:
             doc_ref.update({'deleted_at': datetime.now()})
@@ -68,9 +81,9 @@ class FirebaseRideRepository(RideRepository):
             ride_booking_id = booking_ride_to_create.pop('ride_booking_id', None)
             if ride_booking_id:
                 doc_ref = self.ride_booking_reference.document(ride_booking_id)
-                doc = doc_ref.set(booking_ride_to_create)
-                ride_booking.ride_booking_id = doc.id
-                ride.passengers.append(doc.id)
+                doc_ref.set(booking_ride_to_create)
+                ride_booking.ride_booking_id = ride_booking_id
+                ride.passengers.append(ride_booking_id)
                 ride_ref.update({'passengers': ride.passengers})
                 return ride_booking
             raise BadRequestError('field ride_booking_id is required')

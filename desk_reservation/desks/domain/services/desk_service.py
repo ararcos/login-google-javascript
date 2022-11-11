@@ -63,8 +63,13 @@ class DeskService:
         desk = self.desk_repository.get(desk_id)
         return desk
 
-    def find(self, criteria: Criteria) -> List[Desk]:
+    def find(self, criteria: Criteria, populate: bool) -> List[Desk]:
         desks = self.desk_repository.find(criteria)
+        if len(desks) > 0:
+            if populate:
+                for desk in desks:
+                    seats = self._populate_seats(seats_ids=desk.seats_list)
+                    desk.seats_list = seats
         return desks
 
     def has_permissions(self, user_id: str, office: Office) -> bool:
@@ -81,3 +86,14 @@ class DeskService:
         if len(desk.seats_list) > 12:
             raise TooManySeatsError("Desk")
         return True
+
+    def _populate_seats(
+        self,
+        seats_ids: List[str],
+    ) -> List[dict]:
+        seats = []
+        for seat_id in seats_ids:
+            seat = self.seat_repository.get(seat_id=seat_id)
+            if seat:
+                seats.append(seat.__dict__)
+        return seats

@@ -1,17 +1,19 @@
 from http import HTTPStatus
+import json
 from pydantic import ValidationError
-from ....shared.domain.exceptions import DomainError, BadRequestError
-from ....shared.infrastructure.dependency_injection import ride_service_factory
-from ....shared.infrastructure import ControllerResponse, message_response
-from ...application import RideBookingCreator
-from ...domain import RideBooking
+from desk_reservation.shared.domain.exceptions import DomainError, BadRequestError
+from desk_reservation.shared.infrastructure.dependency_injection import ride_service_factory
+from desk_reservation.shared.infrastructure import ControllerResponse, message_response
+from desk_reservation.ride.application import RideBookingCreator
+from desk_reservation.ride.domain import RideBooking
 
 
-def create_ride_booking_controller(event):
+def create_ride_booking_controller(event, context=None, callback=None):
     try:
         ride_service = ride_service_factory()
-        extra_seats = event.pop('extra_seats')
-        ride_booking = RideBooking(**event)
+        body = json.loads(event["body"])
+        extra_seats = body.pop('extra_seats')
+        ride_booking = RideBooking(**body)
         ride_booking_creator = RideBookingCreator(ride_service)
         result = ride_booking_creator.execute(
             extra_seats=extra_seats,

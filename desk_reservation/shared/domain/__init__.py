@@ -5,3 +5,4 @@ from .exceptions import (
     IdNotFoundError,
     BadRequestError
 )
+from .services import SlackMessageService

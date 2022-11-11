@@ -1,1 +1,3 @@
 from .booking_repository import BookingRepository
+from .lock_repository import LockRepository
+from .booking_parking_repository import BookingParkingRepository

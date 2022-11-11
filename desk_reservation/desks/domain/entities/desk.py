@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from datetime import datetime
 import pydantic
 
@@ -10,7 +10,7 @@ class Desk(pydantic.BaseModel):
     left_pixel: float
     width: float
     height: float
-    seats_list: List[str]
+    seats_list: Union[List[str], List[dict]]
     office_id: str
     created_at: datetime = None
     updated_at: datetime = None

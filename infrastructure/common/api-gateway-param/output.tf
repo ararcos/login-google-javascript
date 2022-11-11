@@ -1,5 +1,5 @@
 output "selected" {
-  value = aws_api_gateway_rest_api.rest-api.id
+  value = var.aws_api_gateway_rest_api.id
 }
 
 output "api_method" {
@@ -7,9 +7,9 @@ output "api_method" {
 }
 
 output "api_path" {
-  value = aws_api_gateway_resource.api-gw.path
+  value = var.aws_api_gateway_resource_param[var.path_part].path
 }
 
 output "api_arn" {
-  value = aws_api_gateway_rest_api.rest-api.execution_arn
+  value = var.aws_api_gateway_rest_api.execution_arn
 }

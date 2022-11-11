@@ -1,9 +1,10 @@
 from http import HTTPStatus
 
-from ...application import RideFinder
-from ....shared.domain.exceptions import DomainError
-from ....shared.infrastructure.dependency_injection import ride_service_factory
-from ....shared.infrastructure import (
+from desk_reservation.ride.application import RideFinder
+from desk_reservation.shared.domain.exceptions import DomainError
+from desk_reservation.shared.infrastructure.dependency_injection import ride_service_factory
+from desk_reservation.shared.infrastructure.controllers import filters_controller
+from desk_reservation.shared.infrastructure import (
     ControllerResponse,
     Criteria,
     Filter,
@@ -12,14 +13,14 @@ from ....shared.infrastructure import (
 )
 
 
-def find_ride_controller(event):
+def find_ride_controller(event, context=None, callback=None):
     ride_service = ride_service_factory()
     ride_finder = RideFinder(ride_service)
-    filters = [Filter(field="deleted_at", operator=Operator.EQUAL, value=None)]
-    criteria = Criteria(filters=filters)
+    params = event.get('queryStringParameters')
     try:
-        result = ride_finder.execute(criteria=criteria)
-        return ControllerResponse(status_code=HTTPStatus.OK, body=result).__dict__
+        criteria = filters_controller(params)
+        result = ride_finder.execute(criteria)
+        return ControllerResponse(HTTPStatus.OK, [ob.__dict__ for ob in result]).__dict__
 
     except DomainError as error:
         response = message_response(error.args)
